@@ -1,0 +1,97 @@
+body {
+   
+    background-color:white;
+    height:1000px; 
+}
+.app-head{
+    height:60px;
+    font-family:courier;
+    line-height:60px;
+    border-bottom:thin lightgrey solid;
+   
+}
+.li{
+    border-bottom:thin teal solid;
+   
+}
+.gap{
+    height:10px;
+}
+.gap2{
+    height:4px;
+}
+.recop{
+    font-size:18px;
+    font-family:serif;
+}
+
+.oc{
+    font-size:20px;
+    font-family:serif;
+    
+}
+.ana{
+    font-size:40px;
+    font-family:serif
+}
+.box1op{
+    font-size:40px;
+    font-weight:bold;
+    font-family:serif;
+    
+}
+.box2op{
+    font-size:40px;
+    font-weight:bold;
+    font-family:serif;
+    
+}
+.box3op{
+    font-size:40px;
+    font-weight:bold;
+    font-family:serif;
+    
+}
+.box4op{
+    font-size:40px;
+    font-weight:bold;
+    font-family:serif;
+    
+}
+
+.dropgraph{
+    transition:all .5s ease-in-out;
+
+}
+/* .wrapper {
+  width: 100px;
+  animation: abc 0.5s forwards cubic-bezier(0.250, 0.460, 0.450, 0.940);
+}
+
+@keyframes abc {
+  100% {
+    width: 50%;
+  }
+}
+
+.animate {
+   animation : shimmer 2s infinite linear;
+   background: linear-gradient(to right, #eff1f3 4%, #e2e2e2 25%, #eff1f3 36%);
+   background-size: 1000px 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+ */
+
+
+
+
+
+    
