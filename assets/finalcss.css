@@ -1,18 +1,18 @@
 body {
-   
+
     background-color:white;
-    height:1000px; 
+    height:1000px;
 }
 .app-head{
     height:60px;
     font-family:courier;
     line-height:60px;
     border-bottom:thin lightgrey solid;
-   
+
 }
 .li{
     border-bottom:thin teal solid;
-   
+
 }
 .gap{
     height:10px;
@@ -28,7 +28,7 @@ body {
 .oc{
     font-size:20px;
     font-family:serif;
-    
+
 }
 .ana{
     font-size:40px;
@@ -38,25 +38,25 @@ body {
     font-size:40px;
     font-weight:bold;
     font-family:serif;
-    
+
 }
 .box2op{
     font-size:40px;
     font-weight:bold;
     font-family:serif;
-    
+
 }
 .box3op{
     font-size:40px;
     font-weight:bold;
     font-family:serif;
-    
+
 }
 .box4op{
     font-size:40px;
     font-weight:bold;
     font-family:serif;
-    
+
 }
 
 .dropgraph{
@@ -94,4 +94,4 @@ body {
 
 
 
-    
+
