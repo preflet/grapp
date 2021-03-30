@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.express as px
 import squarify
 import uvicorn as uvicorn
 from dash.dependencies import Input, Output, State
@@ -21,16 +22,11 @@ t2 = 80
 t3 = 50
 t4 = 45
 
-
 names = list(df["location"].value_counts()[:10].index)
 values = list(df["location"].value_counts()[:10].values)
 
-
 names2 = df["location"][:10]
 values2 = df["location"][:10]
-
-
-import plotly.express as px
 
 fig = go.Figure()
 
@@ -53,7 +49,6 @@ fig3 = go.Figure(
     go.Treemap(labels=labels, parents=parents, values=[10, 20, 14, 24, 32, 41, 22])
 )
 
-
 data = [[1, 25, 30, 50, 1], [20, 1, 60, 80, 30], [30, 60, 1, 5, 20]]
 fig4 = px.imshow(
     data,
@@ -63,9 +58,7 @@ fig4 = px.imshow(
 )
 fig4.update_xaxes(side="top")
 
-
 app = dash.Dash(__name__)  # requests_pathname_prefix='/dash/'
-
 
 app.layout = html.Div(
     [
@@ -102,7 +95,7 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.Div(
-                                    children="Total No. of Restaurents Registered:  ",
+                                    children="Total No. of Restaurants Registered:  ",
                                     className="box1",
                                     style={
                                         "backgroundColor": "#60c0e0",
@@ -138,7 +131,7 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.Div(
-                                    children="Total No. of Restaurents for Online Delivery :",
+                                    children="Total No. of Restaurants for Online Delivery :",
                                     className="box2",
                                     style={
                                         "backgroundColor": "#60c0e0",
@@ -288,7 +281,6 @@ app.layout = html.Div(
         html.Div(className="gap"),
     ]
 )
-
 
 if __name__ == "__main__":
     app.run_server()
