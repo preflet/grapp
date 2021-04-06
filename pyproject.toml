@@ -10,6 +10,12 @@ numpy = "^1.20.1"
 pandas = "^1.2.3"
 matplotlib = "^3.3.4"
 pre-commit = "^2.11.1"
+motor = "^2.3.1"
+dash = "^1.19.0"
+squarify = "^0.4.3"
+uvicorn = "^0.13.4"
+fastapi = "^0.63.0"
+aiofiles = "^0.6.0"
 
 [tool.poetry.dev-dependencies]
 

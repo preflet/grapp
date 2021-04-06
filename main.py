@@ -8,11 +8,13 @@ import plotly.graph_objects as go
 import plotly.express as px
 import squarify
 import uvicorn as uvicorn
+
 from dash.dependencies import Input, Output, State
 from fastapi import FastAPI
 from starlette.middleware.wsgi import WSGIMiddleware
+from fastapi.staticfiles import StaticFiles
 
-df = pd.read_csv("assets/sample.xls")
+df = pd.read_csv("static/sample.xls")
 
 x = dict(label="icecream", value="ice")
 option = [x]
@@ -58,7 +60,7 @@ fig4 = px.imshow(
 )
 fig4.update_xaxes(side="top")
 
-app = dash.Dash(__name__)  # requests_pathname_prefix='/dash/'
+app = dash.Dash(__name__, requests_pathname_prefix="/dash/")
 
 app.layout = html.Div(
     [
@@ -73,7 +75,7 @@ app.layout = html.Div(
                     style={"width": "550px", "display": "inline-block"},
                 ),
                 html.Img(
-                    src="/assets/searchlogo3.png",
+                    src="/static/searchlogo3.png",
                     className="searchlogo",
                     style={
                         "display": "inline-block",
@@ -283,4 +285,7 @@ app.layout = html.Div(
 )
 
 if __name__ == "__main__":
-    app.run_server()
+    app_fastapi = FastAPI()
+    app_fastapi.mount("/dash", WSGIMiddleware(app.server))
+    app_fastapi.mount("/static", StaticFiles(directory="static"), name="static")
+    uvicorn.run(app_fastapi, port=8080)
