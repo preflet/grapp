@@ -1,3 +1,10 @@
 import dask.dataframe as dd
 
-ddf = dd.read_csv('assets/bank.csv')
+
+def load_from_file(path):
+    ddf = dd.read_csv(path)
+    return ddf
+
+
+def load_from_db():
+    pass
