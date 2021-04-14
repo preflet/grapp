@@ -20,18 +20,14 @@ app = dash.Dash(__name__, requests_pathname_prefix="/dash/")
 
 app.layout = layout
 
-@app.callback(Output('piePlot1', 'figure'),
+
+@app.callback([Output('piePlot1', 'figure'), Output('piePlot2', 'figure')],
               [Input('pie-dropdown', 'value')])
 def update_figure(pie_item):
     return go.Figure(
         data=[
-            go.Pie(labels=preprocess.getvalues(pie_item))], layout={"title": f"Distribution of {pie_item.title()}"})
-
-
-@app.callback(Output('piePlot2', 'figure'),
-              [Input('pie-dropdown', 'value')])
-def update_figure(pie_item):
-    return go.Figure(
+            go.Pie(labels=preprocess.getvalues(pie_item))],
+        layout={"title": f"Distribution of {pie_item.title()}"}), go.Figure(
         data=[
             go.Pie(labels=preprocess.getlabels(pie_item), values=preprocess.getvaluesforbalance(pie_item))],
         layout={"title": f"Distribution of Balance over {pie_item.title()}"})
