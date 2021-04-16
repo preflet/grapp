@@ -9,12 +9,13 @@ import plotly.express as px
 import squarify
 import uvicorn as uvicorn
 import preprocess
-from dash_layout import layout as layout
 
+from dash_layout import layout as layout
 from dash.dependencies import Input, Output, State
 from fastapi import FastAPI
 from starlette.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
+
 
 app = dash.Dash(__name__, requests_pathname_prefix="/dash/")
 
