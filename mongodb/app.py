@@ -56,6 +56,36 @@ pipelines = [[
         {'$group': {"_id": {'$dateToString': {'date': "$createdAt", 'format': "%d-%m-%Y"}}, "count": {'$sum': 1},
                     "total": {'$sum': "$payment_details.amount"}}},
         {'$match': {"_id": "26-03-2021"}}
+    ],
+    [
+        {'$facet':
+            {
+                "nao":
+                    [
+                        {'$match': {"userPaymentId": {'$ne': 'null'}}},
+                        {'$lookup': {'from': "payments", 'localField': "userPaymentId", 'foreignField': "_id",
+                                     'as': "payment_details"}},
+                        {'$addFields': {"startDate": "$createdAt",
+                                        "endDate": {'$first': "$payment_details.updatedAt"}}},
+                        {'$addFields': {
+                            "days": {'$divide': [{'$subtract': ["$endDate", "$startDate"]}, 60 * 60 * 1000 * 24]}}}
+                    ],
+                "sim":
+                    [
+                        {'$match': {"xarchivedx": 'null'}},
+                        {'$lookup': {'from': "components_infraction_archives", 'localField': "archive.ref",
+                                     'foreignField': "_id", 'as': "archive_details"}},
+                        {'$addFields': {"startDate": "$createdAt",
+                                        "endDate": {'$first': "$archive_details.archiveAt"}}},
+                        {'$addFields': {
+                            "days": {'$divide': [{'$subtract': ["$endDate", "$startDate"]}, 60 * 60 * 1000 * 24]}}}
+                    ]
+            }
+        },
+        {'$project': {"details": {'$setUnion': ["$nao", "$sim"]}}}, {'$unwind': '$details'},
+        {'$replaceRoot': {'newRoot': "$details"}},
+        {'$group': {"_id": 'null', "averageDays": {'$avg': "$days"}}}
+
     ]
 ]
 
@@ -64,11 +94,12 @@ async def f():
     for pipeline in pipelines:
         list_element = []
         async for doc in collection.aggregate(pipeline):
+            print(doc)
             list_element.append(doc)
+        print("Pipeline Ended")
         query_results.append(list_element)
 
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(f())
 print(query_results)
-
