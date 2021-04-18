@@ -24,8 +24,9 @@ app.layout = layout
 
 grapp_server = FastAPI()
 
-@app.callback([Output('piePlot1', 'figure'), Output('piePlot2', 'figure')],
-              [Input('pie-dropdown', 'value')])
+@app.callback(
+    [Output('piePlot1', 'figure'), Output('piePlot2', 'figure')],
+    [Input('pie-dropdown', 'value')])
 def update_figure(pie_item):
     return go.Figure(
         data=[
@@ -35,6 +36,9 @@ def update_figure(pie_item):
             go.Pie(labels=preprocess.getlabels(pie_item), values=preprocess.getvaluesforbalance(pie_item))],
         layout={"title": f"Distribution of Balance over {pie_item.title()}"})
 
+@grapp_server.get("/")
+async def root():
+    return {"message": "Grapp is running!"}
 
 class Grapp:
     def __init__(self):

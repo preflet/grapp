@@ -1,4 +1,4 @@
-from grapp import Grapp, run_server
+from grapp import Grapp
 
 grapp = Grapp()
 grapp.load_meta("meta.json")
