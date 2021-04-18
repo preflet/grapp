@@ -8,6 +8,7 @@ client = motor.motor_asyncio.AsyncIOMotorClient(
     '=admin')
 db = client.uma
 collection = db.infractions
+query_results = []
 
 pipelines = [[
     {'$match': {"entity": ObjectId("603247be7c0e98001c9a177e")}},
@@ -61,10 +62,13 @@ pipelines = [[
 
 async def f():
     for pipeline in pipelines:
+        list_element = []
         async for doc in collection.aggregate(pipeline):
-            print(doc)
-        print("End of Pipeline")
+            list_element.append(doc)
+        query_results.append(list_element)
 
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(f())
+print(query_results)
+
