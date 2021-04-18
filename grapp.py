@@ -9,6 +9,7 @@ import plotly.express as px
 import squarify
 import uvicorn as uvicorn
 import preprocess
+import json
 
 from dash_layout import layout as layout
 from dash.dependencies import Input, Output, State
@@ -21,6 +22,7 @@ app = dash.Dash(__name__, requests_pathname_prefix="/dash/")
 
 app.layout = layout
 
+grapp_server = FastAPI()
 
 @app.callback([Output('piePlot1', 'figure'), Output('piePlot2', 'figure')],
               [Input('pie-dropdown', 'value')])
@@ -34,8 +36,16 @@ def update_figure(pie_item):
         layout={"title": f"Distribution of Balance over {pie_item.title()}"})
 
 
-if __name__ == "__main__":
-    app_fastapi = FastAPI()
-    app_fastapi.mount("/dash", WSGIMiddleware(app.server))
-    app_fastapi.mount("/static", StaticFiles(directory="static"), name="static")
-    uvicorn.run(app_fastapi, port=8080)
+class Grapp:
+    def __init__(self):
+       self.meta = None
+
+    def load_meta(self, path):
+        with open(path) as f:
+            self.meta = json.load(f)
+            return self.meta
+
+    def run_server(self, dash_path="/dash", static_path="/static", static_directory="static", port=8080):
+        grapp_server.mount(dash_path, WSGIMiddleware(app.server))
+        grapp_server.mount(static_path, StaticFiles(directory=static_directory), name="static")
+        uvicorn.run(grapp_server, port=port)

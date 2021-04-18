@@ -1,0 +1,7 @@
+{
+    "name": "Sample Dashboard",
+    "db": {
+        "type": "mongo",
+        "queries": []
+    }
+}
