@@ -19,3 +19,4 @@ docs_build
 venv
 
 .*.xls
+*.env

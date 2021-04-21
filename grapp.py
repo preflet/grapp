@@ -1,3 +1,5 @@
+import asyncio
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -10,19 +12,29 @@ import squarify
 import uvicorn as uvicorn
 import preprocess
 import json
+import hermes.backend.dict
 
 from dash_layout import layout as layout
 from dash.dependencies import Input, Output, State
 from fastapi import FastAPI
 from starlette.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
-
+from db import mongodb
 
 app = dash.Dash(__name__, requests_pathname_prefix="/dash/")
 
 app.layout = layout
 
 grapp_server = FastAPI()
+cache = hermes.Hermes(hermes.backend.dict.Backend)
+
+
+@cache
+def get_db_results():
+    loop = asyncio.get_event_loop()
+    query_results = loop.run_until_complete(mongodb.f())
+    return query_results
+
 
 @app.callback(
     [Output('piePlot1', 'figure'), Output('piePlot2', 'figure')],
@@ -36,13 +48,15 @@ def update_figure(pie_item):
             go.Pie(labels=preprocess.getlabels(pie_item), values=preprocess.getvaluesforbalance(pie_item))],
         layout={"title": f"Distribution of Balance over {pie_item.title()}"})
 
+
 @grapp_server.get("/")
 async def root():
     return {"message": "Grapp is running!"}
 
+
 class Grapp:
     def __init__(self):
-       self.meta = None
+        self.meta = None
 
     def load_meta(self, path):
         with open(path) as f:
@@ -50,6 +64,7 @@ class Grapp:
             return self.meta
 
     def run_server(self, dash_path="/dash", static_path="/static", static_directory="static", port=8080):
+        query_results = get_db_results()
         grapp_server.mount(dash_path, WSGIMiddleware(app.server))
         grapp_server.mount(static_path, StaticFiles(directory=static_directory), name="static")
         uvicorn.run(grapp_server, port=port)

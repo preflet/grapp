@@ -1,11 +1,13 @@
 import asyncio
 import motor.motor_asyncio
+import os
 
 from bson import ObjectId
+from dotenv import load_dotenv
 
-client = motor.motor_asyncio.AsyncIOMotorClient(
-    'mongodb://root:root@a43e330d650424825a6f364729640062-823673759.eu-west-1.elb.amazonaws.com:27017/uma?authSource'
-    '=admin')
+
+load_dotenv('E:\Preflet-Internship\grapp\.env')
+client = motor.motor_asyncio.AsyncIOMotorClient(os.getenv('URI_MONGODB'))
 db = client.uma
 collection = db.infractions
 query_results = []
@@ -94,12 +96,13 @@ async def f():
     for pipeline in pipelines:
         list_element = []
         async for doc in collection.aggregate(pipeline):
-            print(doc)
+            # print(doc)
             list_element.append(doc)
-        print("Pipeline Ended")
+        # print("Pipeline Ended")
         query_results.append(list_element)
+    return query_results
 
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(f())
-print(query_results)
+# loop = asyncio.get_event_loop()
+# loop.run_until_complete(f())
+# print(query_results)
