@@ -6,7 +6,7 @@ from bson import ObjectId
 from dotenv import load_dotenv
 
 
-load_dotenv('E:\Preflet-Internship\grapp\.env')
+load_dotenv('.env')
 client = motor.motor_asyncio.AsyncIOMotorClient(os.getenv('URI_MONGODB'))
 db = client.uma
 collection = db.infractions
