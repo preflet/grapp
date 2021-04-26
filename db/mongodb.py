@@ -6,6 +6,7 @@ from bson import ObjectId
 from dotenv import load_dotenv
 
 
+
 load_dotenv('.env')
 client = motor.motor_asyncio.AsyncIOMotorClient(os.getenv('URI_MONGODB'))
 db = client.uma

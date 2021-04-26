@@ -1,4 +1,5 @@
 import asyncio
+import time
 
 import dash
 import dash_core_components as dcc
