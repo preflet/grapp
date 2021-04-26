@@ -1,4 +1,5 @@
 import asyncio
+import time
 
 import dash
 import dash_core_components as dcc
@@ -26,7 +27,7 @@ app = dash.Dash(__name__, requests_pathname_prefix="/dash/")
 app.layout = layout
 
 grapp_server = FastAPI()
-cache = hermes.Hermes(hermes.backend.dict.Backend)
+cache = hermes.Hermes(hermes.backend.dict.Backend, ttl=3600)
 
 
 @cache
