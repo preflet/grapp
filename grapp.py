@@ -27,7 +27,7 @@ app = dash.Dash(__name__, requests_pathname_prefix="/dash/")
 app.layout = layout
 
 grapp_server = FastAPI()
-cache = hermes.Hermes(hermes.backend.dict.Backend, ttl=3600)
+cache = hermes.Hermes(hermes.backend.dict.Backend, ttl=mongodb.DB_TTL)
 
 
 @cache
@@ -65,8 +65,10 @@ class Grapp:
             return self.meta
 
     def run_server(self, dash_path="/dash", static_path="/static", static_directory="static", port=8080):
-        query_results = get_db_results()
-        print(query_results)
         grapp_server.mount(dash_path, WSGIMiddleware(app.server))
         grapp_server.mount(static_path, StaticFiles(directory=static_directory), name="static")
         uvicorn.run(grapp_server, port=port)
+
+    def init_cache(self):
+        query_results = get_db_results()
+        print(query_results)
