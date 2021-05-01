@@ -85,6 +85,7 @@ class Grapp:
         grapp_server.mount(static_path, StaticFiles(directory=static_directory), name="static")
         uvicorn.run(grapp_server, port=port)
 
-    def init_cache(self):
+    @staticmethod
+    def init_cache():
         query_results = get_result_and_cache()
         print(query_results)
