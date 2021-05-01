@@ -2,6 +2,7 @@ import asyncio
 import time
 
 import dash
+import dash_layouts
 import dash_core_components as dcc
 import dash_html_components as html
 import matplotlib.pyplot as plt
@@ -13,27 +14,28 @@ import squarify
 import uvicorn as uvicorn
 import preprocess
 import json
-import hermes.backend.dict
 
-from dash_layout import layout as layout
 from dash.dependencies import Input, Output, State
 from fastapi import FastAPI
 from starlette.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
+
+import hermes.backend.dict
+
 from db import mongodb
 
 app = dash.Dash(__name__, requests_pathname_prefix="/dash/")
 
-app.layout = layout
+app.layout = dash_layouts.layout
 
 grapp_server = FastAPI()
-cache = hermes.Hermes(hermes.backend.dict.Backend, ttl=mongodb.DB_TTL)
+cache = hermes.Hermes(hermes.backend.dict.Backend, ttl=mongodb.TTL)
 
 
 @cache
-def get_db_results():
+def get_result_and_cache():
     loop = asyncio.get_event_loop()
-    query_results = loop.run_until_complete(mongodb.f())
+    query_results = loop.run_until_complete(mongodb.fetch_results())
     return query_results
 
 
@@ -50,6 +52,19 @@ def update_figure(pie_item):
         layout={"title": f"Distribution of Balance over {pie_item.title()}"})
 
 
+@app.callback(dash.dependencies.Output('page-content', 'children'),
+              [dash.dependencies.Input('url', 'pathname')])
+def display_page(pathname):
+    if pathname == '/productivity':
+        return dash_layouts.productivity_layout
+    elif pathname == '/demographics':
+        return dash_layouts.demographics_layout
+    elif pathname == '/sample':
+        return dash_layouts.sample_layout
+    else:
+        return dash_layouts.index_layout
+
+
 @grapp_server.get("/")
 async def root():
     return {"message": "Grapp is running!"}
@@ -64,11 +79,12 @@ class Grapp:
             self.meta = json.load(f)
             return self.meta
 
-    def run_server(self, dash_path="/dash", static_path="/static", static_directory="static", port=8080):
+    @staticmethod
+    def run_server(dash_path="/dash", static_path="/static", static_directory="static", port=8080):
         grapp_server.mount(dash_path, WSGIMiddleware(app.server))
         grapp_server.mount(static_path, StaticFiles(directory=static_directory), name="static")
         uvicorn.run(grapp_server, port=port)
 
     def init_cache(self):
-        query_results = get_db_results()
+        query_results = get_result_and_cache()
         print(query_results)

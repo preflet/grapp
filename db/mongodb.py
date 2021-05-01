@@ -1,27 +1,27 @@
 import asyncio
-import motor.motor_asyncio
 import os
+import motor.motor_asyncio
 
 from bson import ObjectId
 from dotenv import load_dotenv
 
-
-DB_TTL = 3600
-load_dotenv('.env')
+TTL = 3600
+load_dotenv('../.env')
 client = motor.motor_asyncio.AsyncIOMotorClient(os.getenv('URI_MONGODB'))
 db = client.uma
 collection = db.infractions
 query_results = []
 
-pipelines = [[
-    {'$match': {"entity": ObjectId("603247be7c0e98001c9a177e")}},
-    {'$group': {"_id": "$entity", "totalInfractions": {'$sum': 1}}},
-    {'$lookup': {'from': "entities", 'localField': "_id", 'foreignField': "_id", 'as': "entity_details"}},
-    {'$unwind': "$entity_details"},
-    {'$project': {"_id": 0, "entityId": "$_id", "fullName": "$entity_details.fullName",
-                  "address": "$entity_details.address", "place": "$entity_details.place",
-                  "totalInfractions": 1}},
-],
+pipelines = [
+    [
+        {'$match': {"entity": ObjectId("603247be7c0e98001c9a177e")}},
+        {'$group': {"_id": "$entity", "totalInfractions": {'$sum': 1}}},
+        {'$lookup': {'from': "entities", 'localField': "_id", 'foreignField': "_id", 'as': "entity_details"}},
+        {'$unwind': "$entity_details"},
+        {'$project': {"_id": 0, "entityId": "$_id", "fullName": "$entity_details.fullName",
+                      "address": "$entity_details.address", "place": "$entity_details.place",
+                      "totalInfractions": 1}},
+    ],
     [
         {'$lookup': {'from': "components_infraction_payments", 'localField': "payment.ref", 'foreignField': "_id",
                      'as': "payment_details"}},
@@ -93,7 +93,7 @@ pipelines = [[
 ]
 
 
-async def f():
+async def fetch_results():
     for pipeline in pipelines:
         list_element = []
         async for doc in collection.aggregate(pipeline):
@@ -102,8 +102,3 @@ async def f():
         # print("Pipeline Ended")
         query_results.append(list_element)
     return query_results
-
-
-# loop = asyncio.get_event_loop()
-# loop.run_until_complete(f())
-# print(query_results)

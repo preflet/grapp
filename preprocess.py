@@ -2,11 +2,14 @@ import load
 import plotly.graph_objs as go
 import plotly.express as px
 import pandas as pd
+import numpy as np
 
-restro_registered = 91
-restro_online = 80
-cuisines = 50
-locations = 45
+from plotly.subplots import make_subplots
+
+RESTAURANT_REGISTERED = 91
+RESTAURANT_ONLINE = 80
+CUISINES = 50
+LOCATIONS = 45
 
 
 # Functions
@@ -102,3 +105,20 @@ fig_imshow = px.imshow(
     y=["Morning", "Afternoon", "Evening"],
 )
 fig_imshow.update_xaxes(side="top")
+
+# For Demographics
+fig_area = go.Figure()
+fig_area.add_trace(
+    go.Scatter(x=[1, 2, 3, 4], y=[0, 2, 3, 5], fill='tozeroy', stackgroup='one', opacity=1, fillcolor="#001540"))
+fig_area.add_trace(
+    go.Scatter(x=[1, 2, 3, 4], y=[3, 5, 1, 7], fill='tonexty', stackgroup='one', opacity=1, fillcolor="#CB9D06"))
+
+# For Productivity
+X = [i for i in range(1, 32)]
+barY = np.random.randint(0, 60, 31)
+lineY = np.random.randint(0, 10, 31)
+fig_barplot3 = make_subplots(specs=[[{"secondary_y": True}]])
+fig_barplot3.add_trace(go.Bar(x=X, y=barY, width=0.5, name="Employees", marker=dict(color='darkblue',
+                                                                                    )), secondary_y=False)
+fig_barplot3.add_trace(go.Scatter(x=X, y=lineY, name="Hours", mode='lines', line=dict(color='orange', width=3)),
+                       secondary_y=True)
