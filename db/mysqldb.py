@@ -1,20 +1,10 @@
 import mysql.connector
-import os
 import pandas as pd
+import settings
 
-from dotenv import load_dotenv
+from db import cache
 
-load_dotenv('../.env')
-
-db = mysql.connector.connect(
-    host=os.getenv("HOST_MYSQL"),
-    user=os.getenv("USER"),
-    password=os.getenv("PASSWORD"),
-    database="ristorail"
-)
-
-cursor = db.cursor()
-cursor.execute('''select
+query = '''select
 a.created_date,
 YEARWEEK(a.created_date) as year_week,
 DATE_FORMAT(a.created_date, '%Y-%m-%d') as date_m,
@@ -47,10 +37,37 @@ left join clock_device_info b on a.device_id = b.id
 left join ipaddress_info c on a.geoip_id = c.id
 left join weather_info d on a.weather_id = d.id
 where a.created_date between '2020-10-01' and '2020-11-01'
-order by a.created_by, a.created_date''')
+order by a.created_by, a.created_date'''
 
-result = cursor.fetchall()
-df = pd.DataFrame(result)
-# df.columns = ["created_date","year_week","date_m","time_m"]
-print(df.head())
 
+class SQL:
+    host = settings.HOST_MYSQL
+    user = settings.USER
+    password = settings.PASSWORD
+
+    def __init__(self):
+        self.db = mysql.connector.connect(
+            host=self.host,
+            user=self.user,
+            password=self.password,
+            database="ristorail"
+        )
+
+    def get_result_and_cache(self):
+        cursor = self.db.cursor()
+        cursor.execute(query)
+        output = cursor.fetchall()
+        self.cache_result(output)
+        return output
+
+    @cache
+    def cache_result(self, cache_result):
+        return cache_result
+
+
+if __name__ == '__main__':
+    sql = SQL()
+    result = sql.get_result_and_cache()
+    df = pd.DataFrame(result)
+    # df.columns = ["created_date","year_week","date_m","time_m"]
+    print(df.head())

@@ -1,16 +1,9 @@
-import asyncio
-import os
 import motor.motor_asyncio
+import asyncio
 
 from bson import ObjectId
-from dotenv import load_dotenv
-
-TTL = 3600
-load_dotenv('../.env')
-client = motor.motor_asyncio.AsyncIOMotorClient(os.getenv('URI_MONGODB'))
-db = client.uma
-collection = db.infractions
-query_results = []
+from db import cache
+import settings
 
 pipelines = [
     [
@@ -93,12 +86,30 @@ pipelines = [
 ]
 
 
-async def fetch_results():
-    for pipeline in pipelines:
-        list_element = []
-        async for doc in collection.aggregate(pipeline):
-            # print(doc)
-            list_element.append(doc)
-        # print("Pipeline Ended")
-        query_results.append(list_element)
-    return query_results
+class Mongo:
+    URI = settings.URI_MONGODB
+
+    def __init__(self):
+        self.client = motor.motor_asyncio.AsyncIOMotorClient(self.URI)
+        self.db = self.client.uma
+        self.collection = self.db.infractions
+
+    @cache
+    def get_result_and_cache(self):
+        loop = asyncio.get_event_loop()
+        query_results = loop.run_until_complete(self.fetch_results())
+        return query_results
+
+    async def fetch_results(self):
+        query_results = []
+        for pipeline in pipelines:
+            list_element = []
+            async for doc in self.collection.aggregate(pipeline):
+                list_element.append(doc)
+            query_results.append(list_element)
+        return query_results
+
+
+if __name__ == '__main__':
+    mongo = Mongo()
+    print(mongo.get_result_and_cache())

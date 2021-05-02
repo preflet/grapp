@@ -1,6 +1,5 @@
 import asyncio
 import time
-
 import dash
 import dash_layouts
 import dash_core_components as dcc
@@ -20,23 +19,11 @@ from fastapi import FastAPI
 from starlette.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
 
-import hermes.backend.dict
-
-from db import mongodb
-
 app = dash.Dash(__name__, requests_pathname_prefix="/dash/")
 
 app.layout = dash_layouts.layout
 
 grapp_server = FastAPI()
-cache = hermes.Hermes(hermes.backend.dict.Backend, ttl=mongodb.TTL)
-
-
-@cache
-def get_result_and_cache():
-    loop = asyncio.get_event_loop()
-    query_results = loop.run_until_complete(mongodb.fetch_results())
-    return query_results
 
 
 @app.callback(
@@ -84,8 +71,3 @@ class Grapp:
         grapp_server.mount(dash_path, WSGIMiddleware(app.server))
         grapp_server.mount(static_path, StaticFiles(directory=static_directory), name="static")
         uvicorn.run(grapp_server, port=port)
-
-    @staticmethod
-    def init_cache():
-        query_results = get_result_and_cache()
-        print(query_results)

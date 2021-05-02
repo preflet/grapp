@@ -349,11 +349,10 @@ demographics_layout = html.Div([
 
 ], style={"font-family": "serif", "padding": "20px"})
 
-
 productivity_layout = html.Div([
     html.Div([
         html.Div('Workhours Overview', style={"font-size": "40px",
-                                                        "color": "#0275d8", "margin-bottom": "10px"}),
+                                              "color": "#0275d8", "margin-bottom": "10px"}),
         html.Div('The key facts about Ristro Rail employees in October', style={"font-size": "20px"})
     ]),
     html.Br(),
