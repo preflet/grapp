@@ -60,14 +60,19 @@ async def root():
 class Grapp:
     def __init__(self):
         self.meta = None
+        self.port = 8080
+        self.host = 'localhost'
 
     def load_meta(self, path):
         with open(path) as f:
             self.meta = json.load(f)
-            return self.meta
+        # load all initial variables from meta
+        self.port = self.meta['port'] if 'port' in self.meta else self.port
+        self.host = self.meta['host'] if 'host' in self.meta else self.host
 
-    @staticmethod
-    def run_server(dash_path="/dash", static_path="/static", static_directory="static", port=8080):
+    # @staticmethod
+    def start(self, dash_path="/dash", static_path="/static", static_directory="static"):
         grapp_server.mount(dash_path, WSGIMiddleware(app.server))
-        grapp_server.mount(static_path, StaticFiles(directory=static_directory), name="static")
-        uvicorn.run(grapp_server, port=port)
+        grapp_server.mount(static_path, StaticFiles(
+            directory=static_directory), name="static")
+        uvicorn.run(grapp_server, host=self.host, port=self.port)
