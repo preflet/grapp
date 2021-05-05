@@ -20,6 +20,7 @@ dask = "^2021.4.0"
 HermesCache = "^0.8.0"
 python-dotenv = "^0.17.1"
 mysql-connector = "^2.2.9"
+jsonschema = "^3.2.0"
 
 [tool.poetry.dev-dependencies]
 

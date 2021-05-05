@@ -20,10 +20,36 @@ from fastapi import FastAPI
 from starlette.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
 from load import load_from as db_types
+from jsonschema import validate
 
 # app = dash.Dash(__name__, requests_pathname_prefix="/dash/")
 
 grapp_server = FastAPI()
+
+schema = {
+    "type": "object",
+    "properties": {
+        "name": {"type": "string"},
+        "host": {"type": "string"},
+        "port": {"type": "number"},
+        "graphs": {
+            "type": "array",
+            "properties": {
+                "name": {"type": "string"},
+                "route": {"type": "string"},
+                "db": {"type": "object",
+                       "properties": {
+                           "type": {"type": "string"},
+                           "credentials": {"type": "object"}
+                       },
+                       "required": ["type", "credentials"]
+                       },
+            },
+            "required": ["name", "route", "db"]
+        },
+    },
+    "required": ["name", "graphs"]
+}
 
 
 # @app.callback(dash.dependencies.Output('page-content', 'children'),
@@ -58,28 +84,31 @@ class Grapp:
         }
 
         self.load_meta(meta_path)
+        self.schema = schema
         self.callbacks(self.app)
 
     def load_meta(self, path):
         with open(path) as f:
             self.meta = json.load(f)
-        # load all initial variables from meta
-        self.port = self.meta['port'] if 'port' in self.meta else self.port
-        self.host = self.meta['host'] if 'host' in self.meta else self.host
-
-        # construct graph layouts
-        graphs = self.meta['graphs'] if 'graphs' in self.meta else []
-        for graph in graphs:
-            # Connect to Graphs DB Here
-            db_type = graph["db"]["type"]
-            if db_type in db_types.keys():
-                credentials = graph['db']['credentials']
-                db_types[db_type](credentials)
-            self.layout.update(
-                dash_layouts.create_layout(
-                    graph
-                )
-            )
+            if validate(instance=self.meta, schema=schema):
+                # load all initial variables from meta
+                self.port = self.meta['port'] if 'port' in self.meta else self.port
+                self.host = self.meta['host'] if 'host' in self.meta else self.host
+                # construct graph layouts
+                graphs = self.meta['graphs'] if 'graphs' in self.meta else []
+                for graph in graphs:
+                    # Connect to Graphs DB Here
+                    db_type = graph["db"]["type"]
+                    if db_type in db_types.keys():
+                        credentials = graph['db']['credentials']
+                        db_types[db_type](credentials)
+                        self.layout.update(
+                            dash_layouts.create_layout(
+                                graph
+                            )
+                        )
+            else:
+                raise Exception("Not Valid Schema")
 
     def callbacks(self, app):
         @app.callback(dash.dependencies.Output('page-content', 'children'),

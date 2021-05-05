@@ -2,10 +2,12 @@ import dask.dataframe as dd
 from db.mongodb import Mongo
 from db.mysqldb import SQL
 import pandas as pd
+import preprocess
 
 
 def load_from_file(path):
     ddf = dd.read_csv(path)
+    # preprocess.process(ddf)
     return ddf
 
 
@@ -23,7 +25,6 @@ def load_from_mongodb(credentials):
 
 
 def load_from_mysql(credentials):
-
     sql = SQL(credentials)
     result = sql.get_result_and_cache()
     df = pd.DataFrame(result)
