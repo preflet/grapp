@@ -399,18 +399,12 @@ productivity_layout = html.Div([
 
 ], style={"font-family": "serif", "padding": "20px"})
 
+route_keys = ['/', '/index', '/sample', '/demographics', '/productivity']
+values = [layout, index_layout, sample_layout, demographics_layout, productivity_layout]
+layouts = dict(zip(route_keys, values))
+
 
 def create_layout(graph):
     graph_id = graph['route']
-    g = {}
-    g[graph_id] = html.Div([
-        html.Div([
-            html.H1(graph['name']),
-            html.Div([
-                html.P('Dash converts Python classes into HTML'),
-                html.P(
-                    "This conversion happens behind the scenes by Dash's JavaScript front-end")
-            ])
-        ])
-    ])
+    g = {graph_id: layouts[graph_id]}
     return g

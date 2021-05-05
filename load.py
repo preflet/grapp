@@ -21,3 +21,8 @@ def load_from_mysql():
     df = pd.DataFrame(result)
     # df.columns = ["created_date","year_week","date_m","time_m"]
     print(df.head())
+
+
+load_from = {'mongo': load_from_mongodb,
+             'mysql': load_from_mysql,
+             'file': load_from_file}

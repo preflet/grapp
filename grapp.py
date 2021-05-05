@@ -13,11 +13,13 @@ import squarify
 import uvicorn as uvicorn
 import preprocess
 import json
+import load
 
 from dash.dependencies import Input, Output, State
 from fastapi import FastAPI
 from starlette.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
+from load import load_from as db_types
 
 # app = dash.Dash(__name__, requests_pathname_prefix="/dash/")
 
@@ -43,6 +45,7 @@ async def root():
 
 
 class Grapp:
+
     def __init__(self, meta_path="meta.json"):
         self.meta = None
         self.port = 8080
@@ -67,6 +70,10 @@ class Grapp:
         # construct graph layouts
         graphs = self.meta['graphs'] if 'graphs' in self.meta else []
         for graph in graphs:
+            # Connect to Graphs DB Here
+            db_type = graph["db"]["type"]
+            if db_type in db_types.keys():
+                db_types[db_type]()
             self.layout.update(
                 dash_layouts.create_layout(
                     graph
@@ -83,14 +90,17 @@ class Grapp:
             else:
                 return dash_layouts.index_layout
 
-    def update_figure(self, pie_item):
-        return go.Figure(
-            data=[
-                go.Pie(labels=preprocess.getvalues(pie_item))],
-            layout={"title": f"Distribution of {pie_item.title()}"}), go.Figure(
-            data=[
-                go.Pie(labels=preprocess.getlabels(pie_item), values=preprocess.getvaluesforbalance(pie_item))],
-            layout={"title": f"Distribution of Balance over {pie_item.title()}"})
+        @app.callback(
+            [Output('piePlot1', 'figure'), Output('piePlot2', 'figure')],
+            [Input('pie-dropdown', 'value')])
+        def update_figure(pie_item):
+            return go.Figure(
+                data=[
+                    go.Pie(labels=preprocess.getvalues(pie_item))],
+                layout={"title": f"Distribution of {pie_item.title()}"}), go.Figure(
+                data=[
+                    go.Pie(labels=preprocess.getlabels(pie_item), values=preprocess.getvaluesforbalance(pie_item))],
+                layout={"title": f"Distribution of Balance over {pie_item.title()}"})
 
     def start(self, dash_path="/dash", static_path="/static", static_directory="static"):
         grapp_server.mount(dash_path, WSGIMiddleware(self.app.server))
