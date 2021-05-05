@@ -73,7 +73,8 @@ class Grapp:
             # Connect to Graphs DB Here
             db_type = graph["db"]["type"]
             if db_type in db_types.keys():
-                db_types[db_type]()
+                credentials = graph['db']['credentials']
+                db_types[db_type](credentials)
             self.layout.update(
                 dash_layouts.create_layout(
                     graph

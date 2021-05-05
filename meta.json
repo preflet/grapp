@@ -13,6 +13,29 @@
           "uri": "URI_MONGODB"
         }
       }
+    },
+    {
+      "route": "/demographics",
+      "name": "Employee Demographics",
+      "db": {
+        "type": "mysql",
+        "credentials": {
+          "secure": true,
+          "host": "HOST_MYSQL",
+          "username": "USER",
+          "password": "PASSWORD"
+        }
+      }
+    },
+    {
+      "route": "/sample",
+      "name": "Sample Graphs",
+      "db": {
+        "type": "file",
+        "credentials": {
+          "path": "static/bank.csv"
+        }
+      }
     }
   ]
 }

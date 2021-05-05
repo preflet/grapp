@@ -85,11 +85,13 @@ pipelines = [
     ]
 ]
 
+URI_MONGODB = settings.URI_MONGODB
+
 
 class Mongo:
-    URI = settings.URI_MONGODB
 
-    def __init__(self):
+    def __init__(self, credentials):
+        self.URI = eval(credentials['uri'])
         self.client = motor.motor_asyncio.AsyncIOMotorClient(self.URI)
         self.db = self.client.uma
         self.collection = self.db.infractions
@@ -110,6 +112,6 @@ class Mongo:
         return query_results
 
 
-if __name__ == '__main__':
-    mongo = Mongo()
-    print(mongo.get_result_and_cache())
+# if __name__ == '__main__':
+#     mongo = Mongo()
+#     print(mongo.get_result_and_cache())

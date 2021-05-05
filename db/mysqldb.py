@@ -39,17 +39,18 @@ left join weather_info d on a.weather_id = d.id
 where a.created_date between '2020-10-01' and '2020-11-01'
 order by a.created_by, a.created_date'''
 
+HOST_MYSQL = settings.HOST_MYSQL
+USER = settings.USER
+PASSWORD = settings.PASSWORD
+
 
 class SQL:
-    host = settings.HOST_MYSQL
-    user = settings.USER
-    password = settings.PASSWORD
 
-    def __init__(self):
+    def __init__(self, credentials):
         self.db = mysql.connector.connect(
-            host=self.host,
-            user=self.user,
-            password=self.password,
+            host=eval(credentials['host']),
+            user=eval(credentials['username']),
+            password=eval(credentials['password']),
             database="ristorail"
         )
 
@@ -65,9 +66,9 @@ class SQL:
         return cache_result
 
 
-if __name__ == '__main__':
-    sql = SQL()
-    result = sql.get_result_and_cache()
-    df = pd.DataFrame(result)
-    # df.columns = ["created_date","year_week","date_m","time_m"]
-    print(df.head())
+# if __name__ == '__main__':
+#     sql = SQL()
+#     result = sql.get_result_and_cache()
+#     df = pd.DataFrame(result)
+#     # df.columns = ["created_date","year_week","date_m","time_m"]
+#     print(df.head())
