@@ -5,5 +5,4 @@ load_from_mongodb()
 # load_from_mysql()
 
 grapp = Grapp()
-grapp.load_meta("meta.json")
 grapp.start()

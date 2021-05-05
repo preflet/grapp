@@ -22,7 +22,8 @@ sample_layout = html.Div(
             html.H1('Hello Dash'),
             html.Div([
                 html.P('Dash converts Python classes into HTML'),
-                html.P("This conversion happens behind the scenes by Dash's JavaScript front-end")
+                html.P(
+                    "This conversion happens behind the scenes by Dash's JavaScript front-end")
             ])
         ]),
         # search dropdown
@@ -279,11 +280,13 @@ sample_layout = html.Div(
             [
                 dcc.Graph(
                     id='piePlot1',
-                    style={"width": "50%", "float": "left", "display": "inline", "text-align": "center"},
+                    style={"width": "50%", "float": "left",
+                           "display": "inline", "text-align": "center"},
                 ),
                 dcc.Graph(
                     id='piePlot2',
-                    style={"width": "50%", "float": "right", "display": "inline", "text-align": "center"}
+                    style={"width": "50%", "float": "right",
+                           "display": "inline", "text-align": "center"}
                 )
             ], style={"width": "100%", "display": "inline-block"}
         ),
@@ -309,7 +312,8 @@ demographics_layout = html.Div([
     html.Div([
         html.Div(children='Time and Attendance', style={"font-size": "40px",
                                                         "color": "#0275d8", "margin-bottom": "10px"}),
-        html.Div('The key facts about Ristro Rail employees in October', style={"font-size": "20px"})
+        html.Div('The key facts about Ristro Rail employees in October',
+                 style={"font-size": "20px"})
     ]),
     html.Br(),
     html.Div([
@@ -343,8 +347,10 @@ demographics_layout = html.Div([
         style={"align-content": "center"}
     ),
     html.Div([
-        html.Div("*Irregularity: when employee do not punch out", style={"margin-bottom": "10px"}),
-        html.Div('*Late Arrival/Leave Early: by 20 minutes difference from the nearest hour')
+        html.Div("*Irregularity: when employee do not punch out",
+                 style={"margin-bottom": "10px"}),
+        html.Div(
+            '*Late Arrival/Leave Early: by 20 minutes difference from the nearest hour')
     ], style={"font-size": "20px"}),
 
 ], style={"font-family": "serif", "padding": "20px"})
@@ -353,7 +359,8 @@ productivity_layout = html.Div([
     html.Div([
         html.Div('Workhours Overview', style={"font-size": "40px",
                                               "color": "#0275d8", "margin-bottom": "10px"}),
-        html.Div('The key facts about Ristro Rail employees in October', style={"font-size": "20px"})
+        html.Div('The key facts about Ristro Rail employees in October',
+                 style={"font-size": "20px"})
     ]),
     html.Br(),
     html.Div([
@@ -391,3 +398,19 @@ productivity_layout = html.Div([
     ], style={"font-size": "20px"}),
 
 ], style={"font-family": "serif", "padding": "20px"})
+
+
+def create_layout(graph):
+    graph_id = graph['route']
+    g = {}
+    g[graph_id] = html.Div([
+        html.Div([
+            html.H1(graph['name']),
+            html.Div([
+                html.P('Dash converts Python classes into HTML'),
+                html.P(
+                    "This conversion happens behind the scenes by Dash's JavaScript front-end")
+            ])
+        ])
+    ])
+    return g

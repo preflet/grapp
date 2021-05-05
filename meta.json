@@ -2,8 +2,17 @@
   "name": "Sample Dashboard",
   "host": "0.0.0.0",
   "port": "8009",
-  "db": {
-    "type": "mongo",
-    "queries": []
-  }
+  "graphs": [
+    {
+      "route": "/productivity",
+      "name": "Employee Productivity",
+      "db": {
+        "type": "mongo",
+        "credentials": {
+          "secure": true,
+          "uri": "URI_MONGODB"
+        }
+      }
+    }
+  ]
 }

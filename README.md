@@ -1,6 +1,6 @@
 # Grapp
 
-A dynamic visualization tool with Plotly.js, Dash, Fastapi and Redis which supports MongoDB database.
+A dynamic visualization tool with Plotly.js, Dash, Fastapi and Redis. Currently it supports MongoDB and MySQL database.
 
 ## Features
 
