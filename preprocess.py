@@ -1,4 +1,4 @@
-import load
+from db.load import load_from_file
 import plotly.graph_objs as go
 import plotly.express as px
 import pandas as pd
@@ -34,7 +34,7 @@ def getvaluesforbalance(pie_item):
     return values
 
 
-bank_ddf = load.load_from_file('static/bank.csv')
+bank_ddf = load_from_file('static/bank.csv')
 bank_ddf = bank_ddf.drop(columns=['contact', 'day', 'month'])
 sample_ddf = pd.read_csv('static/sample.xls')
 
@@ -96,7 +96,8 @@ fig_line = go.Figure(data=go.Scatter(x=city_names,
 
 fig_line.add_bar(x=city_names, y=city_values, name="Count")
 
-fig_pie = go.Figure(data=[go.Pie(labels=pie_label1, values=pie_values, hole=0.3)])
+fig_pie = go.Figure(
+    data=[go.Pie(labels=pie_label1, values=pie_values, hole=0.3)])
 
 fig_imshow = px.imshow(
     data_imshow,

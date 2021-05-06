@@ -13,16 +13,13 @@ import squarify
 import uvicorn as uvicorn
 import preprocess
 import json
-import load
 
 from dash.dependencies import Input, Output, State
 from fastapi import FastAPI
 from starlette.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
-from load import load_from as db_types
+from db.load import load_from as db_types
 from jsonschema import validate
-
-# app = dash.Dash(__name__, requests_pathname_prefix="/dash/")
 
 grapp_server = FastAPI()
 
@@ -44,25 +41,20 @@ schema = {
                        },
                        "required": ["type", "credentials"]
                        },
+                "queries": {
+                    "type": "array",
+                    "properties": {
+                        "table": {"type": "string"},
+                        "type": {"type": "string"},
+                        "input": {"type": "string"},
+                    },
+                }
             },
             "required": ["name", "route", "db"]
         },
     },
     "required": ["name", "graphs"]
 }
-
-
-# @app.callback(dash.dependencies.Output('page-content', 'children'),
-#               [dash.dependencies.Input('url', 'pathname')])
-# def display_page(pathname):
-#     if pathname == '/productivity':
-#         return dash_layouts.productivity_layout
-#     elif pathname == '/demographics':
-#         return dash_layouts.demographics_layout
-#     elif pathname == '/sample':
-#         return dash_layouts.sample_layout
-#     else:
-#         return dash_layouts.index_layout
 
 
 @grapp_server.get("/")
@@ -90,25 +82,36 @@ class Grapp:
     def load_meta(self, path):
         with open(path) as f:
             self.meta = json.load(f)
-            if validate(instance=self.meta, schema=schema):
-                # load all initial variables from meta
-                self.port = self.meta['port'] if 'port' in self.meta else self.port
-                self.host = self.meta['host'] if 'host' in self.meta else self.host
-                # construct graph layouts
-                graphs = self.meta['graphs'] if 'graphs' in self.meta else []
-                for graph in graphs:
-                    # Connect to Graphs DB Here
-                    db_type = graph["db"]["type"]
-                    if db_type in db_types.keys():
-                        credentials = graph['db']['credentials']
-                        db_types[db_type](credentials)
-                        self.layout.update(
-                            dash_layouts.create_layout(
-                                graph
-                            )
-                        )
+
+        validate(instance=self.meta, schema=schema)
+
+        # load all initial variables from meta
+        self.port = self.meta['port'] if 'port' in self.meta else self.port
+        self.host = self.meta['host'] if 'host' in self.meta else self.host
+        # construct graph layouts
+        graphs = self.meta['graphs'] if 'graphs' in self.meta else []
+        for graph in graphs:
+            print(graph)
+            # Connect to Graphs DB Here
+            db_type = graph["db"]["type"]
+            if db_type in db_types.keys():
+                # create db connection
+                credentials = graph['db']['credentials']
+
+                print(graph)
+
+                # load and run queries
+                result = db_types[db_type](
+                    credentials, graph['queries'])
+                print(result)
+
+                self.layout.update(
+                    dash_layouts.create_layout(
+                        graph
+                    )
+                )
             else:
-                raise Exception("Not Valid Schema")
+                print('Data source is currently not supported.')
 
     def callbacks(self, app):
         @app.callback(dash.dependencies.Output('page-content', 'children'),

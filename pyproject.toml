@@ -21,6 +21,7 @@ HermesCache = "^0.8.0"
 python-dotenv = "^0.17.1"
 mysql-connector = "^2.2.9"
 jsonschema = "^3.2.0"
+python-bsonjs = "^0.2.0"
 
 [tool.poetry.dev-dependencies]
 

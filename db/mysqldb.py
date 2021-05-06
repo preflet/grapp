@@ -1,6 +1,5 @@
 import mysql.connector
 import pandas as pd
-import settings
 
 from db import cache
 
@@ -38,10 +37,6 @@ left join ipaddress_info c on a.geoip_id = c.id
 left join weather_info d on a.weather_id = d.id
 where a.created_date between '2020-10-01' and '2020-11-01'
 order by a.created_by, a.created_date'''
-
-HOST_MYSQL = settings.HOST_MYSQL
-USER = settings.USER
-PASSWORD = settings.PASSWORD
 
 
 class SQL:
