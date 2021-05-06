@@ -97,9 +97,6 @@ class Grapp:
             if db_type in db_types.keys():
                 # create db connection
                 credentials = graph['db']['credentials']
-
-                print(graph)
-
                 # load and run queries
                 result = db_types[db_type](
                     credentials, graph['queries'])

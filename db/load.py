@@ -25,7 +25,7 @@ def load_from_mongodb(credentials, q):
 
 
 def load_from_mysql(credentials, q):
-    sql = SQL(credentials)
+    sql = SQL(credentials, q)
     result = sql.get_result_and_cache()
     df = pd.DataFrame(result)
     # df.columns = ["created_date","year_week","date_m","time_m"]

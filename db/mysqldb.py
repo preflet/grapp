@@ -1,3 +1,5 @@
+from os import getenv
+
 import mysql.connector
 import pandas as pd
 
@@ -41,17 +43,20 @@ order by a.created_by, a.created_date'''
 
 class SQL:
 
-    def __init__(self, credentials):
+    def __init__(self, credentials, queries=None):
+        if queries is None:
+            queries = []
         self.db = mysql.connector.connect(
-            host=eval(credentials['host']),
-            user=eval(credentials['username']),
-            password=eval(credentials['password']),
-            database="ristorail"
+            host=getenv(credentials['host']),
+            user=getenv(credentials['username']),
+            password=getenv(credentials['password']),
+            database=credentials['database']
         )
+        self.query = queries
 
     def get_result_and_cache(self):
         cursor = self.db.cursor()
-        cursor.execute(query)
+        cursor.execute(self.query)
         output = cursor.fetchall()
         self.cache_result(output)
         return output
@@ -59,7 +64,6 @@ class SQL:
     @cache
     def cache_result(self, cache_result):
         return cache_result
-
 
 # if __name__ == '__main__':
 #     sql = SQL()
