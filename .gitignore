@@ -17,6 +17,6 @@ env3.*
 env
 docs_build
 venv
-
+cache
 .*.xls
 *.env

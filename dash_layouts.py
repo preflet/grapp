@@ -1,6 +1,7 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import preprocess
+from datetime import datetime
 
 layout = html.Div([
     dcc.Location(id='url', refresh=False),
@@ -14,6 +15,13 @@ index_layout = html.Div(
         dcc.Link('Demographics', href='/demographics'),
         html.Br(),
         dcc.Link('Sample', href='/sample'),
+        html.Br(),
+        html.H1(f'Current time is{datetime.now().strftime("%H:%M:%S")}', id="cache_text"),
+        dcc.Interval(
+            id='interval-component',
+            interval=10 * 1000,  # in milliseconds
+            n_intervals=0
+        )
     ])])
 
 sample_layout = html.Div(
