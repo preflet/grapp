@@ -4,6 +4,7 @@ from json import loads
 from os import getenv
 from bson import ObjectId, json_util
 from db import cache
+import pickle
 
 
 def dump_query(q):

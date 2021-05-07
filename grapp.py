@@ -1,6 +1,8 @@
 import asyncio
 import time
 import dash
+import hermes
+
 import dash_layouts
 import dash_core_components as dcc
 import dash_html_components as html
@@ -20,7 +22,7 @@ from starlette.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
 from db.load import load_from as db_types
 from jsonschema import validate
-from flask_caching import Cache
+# from flask_caching import Cache
 from datetime import datetime
 
 grapp_server = FastAPI()
@@ -71,10 +73,7 @@ class Grapp:
         self.port = 8080
         self.host = 'localhost'
         self.app = dash.Dash(__name__, requests_pathname_prefix="/dash/")
-        self.cache = Cache(self.app.server, config={
-            'CACHE_TYPE': 'filesystem',
-            'CACHE_DIR': 'cachee'
-        })
+        self.cache = hermes.Hermes(hermes.backend.dict.Backend, ttl=60)
         self.cache_timeout = 10
         self.app.config.suppress_callback_exceptions = True
         self.app.layout = dash_layouts.layout
@@ -138,13 +137,15 @@ class Grapp:
                     go.Pie(labels=preprocess.getlabels(pie_item), values=preprocess.getvaluesforbalance(pie_item))],
                 layout={"title": f"Distribution of Balance over {pie_item.title()}"})
 
+        @self.cache()
+        def cached_time():
+            return f'Current time is{datetime.now().strftime("%H:%M:%S")}'
+
         @app.callback(
             Output('cache_text', 'children'),
             Input('interval-component', 'n_intervals'))
-        @self.cache.memoize(timeout=self.cache_timeout)
         def render(value):
-            print(datetime.now().strftime("%H:%M:%S"))
-            return f'Current time is{datetime.now().strftime("%H:%M:%S")}'
+            return cached_time()
 
     def start(self, dash_path="/dash", static_path="/static", static_directory="static"):
         grapp_server.mount(dash_path, WSGIMiddleware(self.app.server))
