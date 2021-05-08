@@ -37,7 +37,7 @@
         {
           "table": "infractions",
           "type": "aggregate",
-          "input": "[{'$match': {'entity': {'$oid': '603247be7c0e98001c9a177e'}}}, {'$group': {'_id': '$entity', 'totalInfractions': {'$sum': 1}}}, {'$lookup': {'from': 'entities', 'localField': '_id', 'foreignField': '_id', 'as': 'entity_details'}}, {'$unwind': '$entity_details'}, {'$project': {'_id': 0, 'entityId': '$_id', 'fullName': '$entity_details.fullName', 'address': '$entity_details.address', 'place': '$entity_details.place', 'totalInfractions': 1}}]"
+          "input": "[{'$group': {'_id': '$state', 'count': {'$sum': 1}}}]"
         }
       ]
     },

@@ -20,8 +20,8 @@ def load_from_file_creds(credentials, q):
 
 def load_from_mongodb(credentials, q):
     mongo = Mongo(credentials, q)
-    result = mongo.get_result_and_cache()
-    print(result)
+    # result = mongo.get_result_and_cache()
+    # print(result)
 
 
 def load_from_mysql(credentials, q):
