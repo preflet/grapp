@@ -16,7 +16,7 @@ features:
 
 Template for [docs](https://github.com/preflet/grapp).
 
-<alert type="success">
+<alert type="info">
 
 Your documentation has been created successfully!
 
