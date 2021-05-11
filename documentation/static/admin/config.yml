@@ -4,7 +4,7 @@ public_folder: /images
 
 backend:
   name: git-gateway
-  branch: main
+  branch: develop
   repo: preflet/grapp
   url: https://grapp.preflet.com
   open_authoring: true
