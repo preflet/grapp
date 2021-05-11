@@ -1,0 +1,10 @@
+{
+  "title": "docs",
+  "url": "https://grapp.preflet.com",
+  "logo": {
+    "light": "/logo-light.svg",
+    "dark": "/logo-dark.svg"
+  },
+  "github": "preflet/grapp",
+  "twitter": "@preflets"
+}
