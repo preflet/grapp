@@ -14,7 +14,6 @@ def load_from_file(path):
 def load_from_file_creds(credentials, q):
     path = credentials['path']
     ddf = dd.read_csv(path)
-    print(ddf)
     return ddf
 
 
@@ -29,7 +28,6 @@ def load_from_mysql(credentials, q):
     result = sql.get_result_and_cache()
     df = pd.DataFrame(result)
     # df.columns = ["created_date","year_week","date_m","time_m"]
-    print(df.head())
 
 
 load_from = {'mongo': load_from_mongodb,

@@ -27,6 +27,9 @@ from datetime import datetime
 
 grapp_server = FastAPI()
 
+base_route = 'index'
+theme = 'https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css'
+
 schema = {
     "type": "object",
     "properties": {
@@ -37,6 +40,7 @@ schema = {
             "type": "array",
             "properties": {
                 "name": {"type": "string"},
+                "description": {"type": "string"},
                 "route": {"type": "string"},
                 "db": {"type": "object",
                        "properties": {
@@ -72,14 +76,11 @@ class Grapp:
         self.meta = None
         self.port = 8080
         self.host = 'localhost'
-        self.app = dash.Dash(__name__, requests_pathname_prefix="/")
+        self.app = dash.Dash(__name__, requests_pathname_prefix="/", external_stylesheets=[theme])
         self.cache = hermes.Hermes(hermes.backend.dict.Backend, ttl=60)
         self.cache_timeout = 10
         self.app.config.suppress_callback_exceptions = True
-        self.app.layout = dash_layouts.layout
-        self.layout = {
-            'index': dash_layouts.index_layout
-        }
+        self.layout = {}
         self.load_meta(meta_path)
         self.schema = schema
         self.callbacks(self.app)
@@ -95,8 +96,10 @@ class Grapp:
         self.host = self.meta['host'] if 'host' in self.meta else self.host
         # construct graph layouts
         graphs = self.meta['graphs'] if 'graphs' in self.meta else []
+        # create basic route
+        self.app.layout = dash_layouts.get_all_graph_routes_layout(graphs)
+
         for graph in graphs:
-            print(graph)
             # Connect to Graphs DB Here
             db_type = graph["db"]["type"]
             if db_type in db_types.keys():
@@ -105,7 +108,6 @@ class Grapp:
                 # load and run queries
                 result = db_types[db_type](
                     credentials, graph['queries'])
-                print(result)
 
                 self.layout.update(
                     dash_layouts.create_layout(
@@ -119,11 +121,10 @@ class Grapp:
         @app.callback(dash.dependencies.Output('page-content', 'children'),
                       [dash.dependencies.Input('url', 'pathname')])
         def construct_layout(pathname):
-            print(pathname)
             if pathname in self.layout:
                 return self.layout[pathname]
             else:
-                return dash_layouts.index_layout
+                return self.layout[base_route]
 
         @app.callback(
             [Output('piePlot1', 'figure'), Output('piePlot2', 'figure')],

@@ -1,28 +1,8 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import preprocess
+
 from datetime import datetime
-
-layout = html.Div([
-    dcc.Location(id='url', refresh=False),
-    html.Div(id='page-content')
-])
-
-index_layout = html.Div(
-    [html.Div([
-        dcc.Link('Productivity', href='/productivity'),
-        html.Br(),
-        dcc.Link('Demographics', href='/demographics'),
-        html.Br(),
-        dcc.Link('Sample', href='/sample'),
-        html.Br(),
-        html.H1(f'Current time is{datetime.now().strftime("%H:%M:%S")}', id="cache_text"),
-        dcc.Interval(
-            id='interval-component',
-            interval=10 * 1000,  # in milliseconds
-            n_intervals=0
-        )
-    ])])
 
 sample_layout = html.Div(
     [
@@ -316,103 +296,58 @@ sample_layout = html.Div(
     ]
 )
 
-demographics_layout = html.Div([
-    html.Div([
-        html.Div(children='Time and Attendance', style={"font-size": "40px",
-                                                        "color": "#0275d8", "margin-bottom": "10px"}),
-        html.Div('The key facts about Ristro Rail employees in October',
-                 style={"font-size": "20px"})
-    ]),
-    html.Br(),
-    html.Div([
-        html.Div([
-            html.H1('15.9%', className="flex-h1"),
-            html.Div('Irregularities*', className="flex-div")
-        ]),
-        html.Div([
-            html.H1('13.5%', className="flex-h1"),
-            html.Div('Late Arrival*', className="flex-div")
-        ]),
-        html.Div([
-            html.H1('12.7%', className="flex-h1"),
-            html.Div('Leave Early*', className="flex-div")
-        ]),
-        html.Div([
-            html.H1('21.3%', className="flex-h1"),
-            html.Div('Work on Weekends', className="flex-div")
-        ])
-    ], className="flexbox-container", style={"width": "100%"}),
-    html.Br(),
-    html.Br(),
-    html.Div(
-        [
-            dcc.Graph(
-                id='areaPlot',
-                figure=preprocess.fig_area,
-            ),
-        ],
-        id='div-area',
-        style={"align-content": "center"}
-    ),
-    html.Div([
-        html.Div("*Irregularity: when employee do not punch out",
-                 style={"margin-bottom": "10px"}),
+def get_all_graph_routes_layout(graph_data):
+    routes = []
+    for graph in graph_data:
+        routes.append(html.A(graph['name'], className='navbar-item', href=graph['route']))
+    navigation = None
+    if len(routes) > 1:
+        # when multiple graphs show a dropdown
+        navigation = html.Div([
+            html.A('Switch', className='navbar-link'),
+            html.Div(routes, className='navbar-dropdown')
+        ], className='navbar-item has-dropdown is-hoverable')
+    else:
+        navigation = ''
+    layout = html.Div([
+        dcc.Location(id='url', refresh=True),
         html.Div(
-            '*Late Arrival/Leave Early: by 20 minutes difference from the nearest hour')
-    ], style={"font-size": "20px"}),
+            id='page-content',
+            children=html.Nav()
+        ),
+        html.Nav([
+            html.Div([
+                html.A([
+                    html.Img(src='https://www.preflet.com/assets/img/imgs/logo.png'),
+                ], className='navbar-item', href="https://preflet.com")
+            ], className='navbar-brand'),
+            html.Div([
+                html.Div([
+                    navigation
+                ], className='navbar-end')
+            ], className='navbar-menu')
+        ], 
+        className='navbar',
+        role="navigation",
+        ),
+    ])
+    return layout
 
-], style={"font-family": "serif", "padding": "20px"})
-
-productivity_layout = html.Div([
-    html.Div([
-        html.Div('Workhours Overview', style={"font-size": "40px",
-                                              "color": "#0275d8", "margin-bottom": "10px"}),
-        html.Div('The key facts about Ristro Rail employees in October',
-                 style={"font-size": "20px"})
-    ]),
-    html.Br(),
-    html.Div([
+def create_header(title, description=''):
+    return html.Div([
+        # html.Row(
+        #     [
+        #         html.H1(title)
+        #     ], justify="center", align="center", className="h-50"
+        # ),
         html.Div([
-            html.H1('52', className="flex-h1"),
-            html.Div('Employees/day', className="flex-div")
-        ]),
-        html.Div([
-            html.H1('8:16', className="flex-h1"),
-            html.Div('Avg Hours/day', className="flex-div")
-        ]),
-        html.Div([
-            html.H1('00:47', className="flex-h1"),
-            html.Div('Avg Breaktime', className="flex-div")
-        ]),
-        html.Div([
-            html.H1('93.4%', className="flex-h1"),
-            html.Div('Productivity*', className="flex-div")
+            html.P(description),
         ])
-    ], className="flexbox-container", style={"width": "100%"}),
-    html.Br(),
-    html.Br(),
-    html.Div(
-        [
-            dcc.Graph(
-                id='areaPlot',
-                figure=preprocess.fig_barplot3,
-            ),
-        ],
-        id='div-area',
-        style={"align-content": "center"}
-    ),
-    html.Div([
-        html.Div("*Productivity: % total hours without break by 8 hours"),
-    ], style={"font-size": "20px"}),
-
-], style={"font-family": "serif", "padding": "20px"})
-
-route_keys = ['/', '/index', '/sample', '/demographics', '/productivity']
-values = [layout, index_layout, sample_layout, demographics_layout, productivity_layout]
-layouts = dict(zip(route_keys, values))
-
+    ]),
 
 def create_layout(graph):
-    graph_id = graph['route']
-    g = {graph_id: layouts[graph_id]}
-    return g
+    graph_ = {}
+    header = create_header(graph['name'], graph['description'] if 'description' in graph else '')
+    layout = html.Div(header)
+    graph_[graph['route']] = layout
+    return graph_
