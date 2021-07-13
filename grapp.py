@@ -61,7 +61,7 @@ schema = {
 }
 
 
-@grapp_server.get("/")
+@grapp_server.get("/health")
 async def root():
     return {"message": "Grapp is running!"}
 
@@ -147,7 +147,7 @@ class Grapp:
         def render(value):
             return cached_time()
 
-    def start(self, dash_path="/dash", static_path="/static", static_directory="static"):
+    def start(self, dash_path="/", static_path="/static", static_directory="static"):
         grapp_server.mount(dash_path, WSGIMiddleware(self.app.server))
         grapp_server.mount(static_path, StaticFiles(
             directory=static_directory), name="static")
