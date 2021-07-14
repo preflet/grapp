@@ -19,36 +19,39 @@ class Mongo:
     connection = []
 
     def __init__(self, credentials, queries=[]):
-        self.uri_name = credentials['uri'] if credentials['secure'] else credentials['uri']
+        self.uri_name = getenv(credentials['uri']) if credentials['secure'] else credentials['uri']
         self.pipelines = queries
         val = next((item for item in self.connection if item["uri"] == self.uri_name),
                    False) if self.connection else False
         if not val:
-            self.save_connection(self.uri_name, credentials['name'])
+            self.get_and_save_connection(self.uri_name, credentials['name'])
         else:
             print("Connection Saved Already")
-        self.get_result_and_cache(self.pipelines)
 
-    def save_connection(self, uri_name, table):
+    def get_and_save_connection(self, uri, table):
         print("In Save Connection")
-        uri = getenv(uri_name)
         client = AsyncIOMotorClient(uri)
         db = client[table]
-        dic = {'uri': uri_name, 'client': client, 'db': db}
+        dic = {'uri': uri, 'client': client, 'db': db}
         self.connection.append(dic)
 
     @cache
-    def get_result_and_cache(self, pipeline):
+    def get_result_and_cache(self):
         loop = get_event_loop()
-        query_results = loop.run_until_complete(self.fetch_results(pipeline))
+        query_results = loop.run_until_complete(self.fetch_results(self.pipelines))
         return query_results
 
     async def fetch_results(self, pipeline):
         list_element = []
         val = next((item for item in self.connection if item["uri"] == self.uri_name),False)
-        if not val:
+        if val:
             for pip in pipeline:
-                collection = val['db'][pip["table"]]
-                async for doc in collection.aggregate(load_query(pip["input"])):
-                    list_element.append(doc)
+                print(pip)
+                collection = val['db'][pip["source"]]
+                print(collection)
+                d = []
+                async for doc in collection.aggregate(load_query(pip["value"])):
+                    print(doc)
+                    d.append(doc)
+                list_element.append(d if len(d) > 1 else d[0])
         return list_element

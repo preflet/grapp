@@ -442,6 +442,14 @@ pyparsing = ">=2.0.3,<2.0.4 || >2.0.4,<2.1.2 || >2.1.2,<2.1.6 || >2.1.6"
 python-dateutil = ">=2.1"
 
 [[package]]
+name = "millify"
+version = "0.1.1"
+description = "Convert long numbers into a human-readable format in Python"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "motor"
 version = "2.3.1"
 description = "Non-blocking MongoDB driver for Tornado or asyncio"
@@ -795,7 +803,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1,<4.0"
-content-hash = "2bef7e986bd7c7296f9ceebc9c46a5d75c02ec3cbf456888fd4a17cd644bf05f"
+content-hash = "d4bb830a94c74964abd9bc6a1a502287bf76d240aadb3cd3108bcbae26fe08b6"
 
 [metadata.files]
 aiofiles = [
@@ -1112,6 +1120,9 @@ matplotlib = [
     {file = "matplotlib-3.3.4-pp37-pypy37_pp73-macosx_10_9_x86_64.whl", hash = "sha256:aa49571d8030ad0b9ac39708ee77bd2a22f87815e12bdee52ecaffece9313ed8"},
     {file = "matplotlib-3.3.4-pp37-pypy37_pp73-manylinux2010_x86_64.whl", hash = "sha256:cf3a7e54eff792f0815dbbe9b85df2f13d739289c93d346925554f71d484be78"},
     {file = "matplotlib-3.3.4.tar.gz", hash = "sha256:3e477db76c22929e4c6876c44f88d790aacdf3c3f8f3a90cb1975c0bf37825b0"},
+]
+millify = [
+    {file = "millify-0.1.1.tar.gz", hash = "sha256:619defdc98b6d23f941b5ce4aaf4bf87a0e0f64cd0446ffa299be94486597f1a"},
 ]
 motor = [
     {file = "motor-2.3.1-py3-none-any.whl", hash = "sha256:ea5a8f5c7cbb08b7c301d7c66746fc96333d634182df236dff0f814f802fe232"},

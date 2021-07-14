@@ -24,45 +24,11 @@ from db.load import load_from as db_types
 from jsonschema import validate
 # from flask_caching import Cache
 from datetime import datetime
+from schema import schema
 
 grapp_server = FastAPI()
 
-base_route = 'index'
 theme = 'https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css'
-
-schema = {
-    "type": "object",
-    "properties": {
-        "name": {"type": "string"},
-        "host": {"type": "string"},
-        "port": {"type": "number"},
-        "graphs": {
-            "type": "array",
-            "properties": {
-                "name": {"type": "string"},
-                "description": {"type": "string"},
-                "route": {"type": "string"},
-                "db": {"type": "object",
-                       "properties": {
-                           "type": {"type": "string"},
-                           "credentials": {"type": "object"}
-                       },
-                       "required": ["type", "credentials"]
-                       },
-                "queries": {
-                    "type": "array",
-                    "properties": {
-                        "table": {"type": "string"},
-                        "type": {"type": "string"},
-                        "input": {"type": "string"},
-                    },
-                }
-            },
-            "required": ["name", "route", "db"]
-        },
-    },
-    "required": ["name", "graphs"]
-}
 
 
 @grapp_server.get("/health")
@@ -97,7 +63,7 @@ class Grapp:
         # construct graph layouts
         graphs = self.meta['graphs'] if 'graphs' in self.meta else []
         # create basic route
-        self.app.layout = dash_layouts.get_all_graph_routes_layout(graphs)
+        self.app.layout = dash_layouts.wrap_layout(graphs)
 
         for graph in graphs:
             # Connect to Graphs DB Here
@@ -105,14 +71,56 @@ class Grapp:
             if db_type in db_types.keys():
                 # create db connection
                 credentials = graph['db']['credentials']
-                # load and run queries
-                result = db_types[db_type](
-                    credentials, graph['queries'])
 
-                self.layout.update(
-                    dash_layouts.create_layout(
-                        graph
-                    )
+                # create app header
+                header = dash_layouts.create_header(
+                    graph['name'],
+                    graph['description'] if 'description' in graph else ''
+                )
+
+                design = []
+
+                # run all queries
+                pipeline = {}
+                for q in graph['queries']:
+                    if q['input']['type'] != 'raw':
+                        pipeline[graph['queries'].index(q)] = q['input']
+                result = db_types[db_type](
+                    credentials, [p for p in list(pipeline.values()) if p]
+                )
+                print(result)
+
+                # generate graph
+                for query in graph['queries']:
+                    r = None
+                    if query['input']['type'] == 'raw':
+                        r = query['input']['value']
+                    # start graph generation
+                    if query['output']['type'] == 'indicator':
+                        r = preprocess.indicator(result[graph['queries'].index(query)])
+                        design.append(
+                            dash_layouts.create_indicator(
+                                value=r,
+                                title=query['output']['title'],
+                                size=query['size']
+                            )
+                        )
+                    elif query['output']['type'] == 'piechart':
+                        r = preprocess.piechart(result[graph['queries'].index(query)], query)
+                    
+                        design.append(
+                            dash_layouts.create_piechart(
+                                labels=r['labels'],
+                                values=r['values'], 
+                                title=query['output']['title'],
+                                size=query['size']
+                            )
+                        )
+                self.layout[graph['route']] = html.Div(
+                    html.Div([
+                        header,
+                        html.Div(design, className="columns is-multiline"),
+                    ], className="container")
                 )
             else:
                 print('Data source is currently not supported.')
@@ -124,19 +132,8 @@ class Grapp:
             if pathname in self.layout:
                 return self.layout[pathname]
             else:
-                return self.layout[base_route]
-
-        @app.callback(
-            [Output('piePlot1', 'figure'), Output('piePlot2', 'figure')],
-            [Input('pie-dropdown', 'value')])
-        def update_figure(pie_item):
-            return go.Figure(
-                data=[
-                    go.Pie(labels=preprocess.getvalues(pie_item))],
-                layout={"title": f"Distribution of {pie_item.title()}"}), go.Figure(
-                data=[
-                    go.Pie(labels=preprocess.getlabels(pie_item), values=preprocess.getvaluesforbalance(pie_item))],
-                layout={"title": f"Distribution of Balance over {pie_item.title()}"})
+                # render first graph always
+                return self.layout[list(self.layout.keys())[0]]
 
         @self.cache()
         def cached_time():
@@ -147,6 +144,17 @@ class Grapp:
             Input('interval-component', 'n_intervals'))
         def render(value):
             return cached_time()
+
+        @app.callback(
+            Output("pie-chart", "figure"), 
+            [Input("names", "value"), 
+            Input("values", "value")])
+        def generate_chart(names, values):
+            import pandas as pd
+            print('V_BSGRGSRGS')
+            df = pd.DataFrame({'Count': values, 'Municipio': names})
+            fig = px.pie(df, values='Count', names='Municipio')
+            return fig
 
     def start(self, dash_path="/", static_path="/static", static_directory="static"):
         grapp_server.mount(dash_path, WSGIMiddleware(self.app.server))
