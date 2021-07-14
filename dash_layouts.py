@@ -62,22 +62,27 @@ def create_indicator(title='-', value='-', info='', size=4):
         ], className='card', style={'background-color': 'rgb(15, 70, 145)'})    
     , className='column is-' + str(size))
 
-def create_piechart(labels=[], values=[], title='', size=6):
-    print('df____________')
-        
+def create_piechart(labels=[], values=[], title='', size=6, colors=[]):
+    figure = px.pie({'value': values,'label':labels}, 
+        values='value',
+        names='label',
+    )
+    figure.update_traces(
+        hoverinfo='label+percent',
+        textinfo='value',
+        textfont_size=20,
+        paper_bgcolor='rgb(244, 244, 244)',
+        marker=dict(colors=colors, line=dict(color='#000000', width=2))
+    )
     return html.Div(
         html.Div([
             html.Div(
                 html.Div([
                     html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
-                    dcc.Dropdown(
-                        id='values', 
-                        value='total_bill', 
-                        options=[{'value': x, 'label': x} 
-                                for x in ['total_bill', 'tip', 'size']],
-                        clearable=False
+                    dcc.Graph(
+                        id='pie-chart-' + str(title).replace(' ', '-'),
+                        figure=figure
                     ),
-                    dcc.Graph(id="pie-chart", figure=go.Figure()),
                 ], className='content',),
             className='card-content'),
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  

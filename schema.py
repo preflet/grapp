@@ -10,6 +10,7 @@ schema = {
                 "name": {"type": "string"},
                 "description": {"type": "string"},
                 "route": {"type": "string"},
+                "colors": {"type": "array"},
                 "db": {
                     "type": "object",
                     "properties": {
@@ -39,6 +40,7 @@ schema = {
                             },
                             "required": ["type"]
                         },
+                        "colors": {"type": "array"},
                         "size": {"type": "integer"}
                     },
                 }

@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-import plotly.express as px
 import squarify
 import uvicorn as uvicorn
 import preprocess
@@ -66,6 +65,8 @@ class Grapp:
         self.app.layout = dash_layouts.wrap_layout(graphs)
 
         for graph in graphs:
+            # load colors
+            colors = graph['colors'] if 'colors' in graph else []
             # Connect to Graphs DB Here
             db_type = graph["db"]["type"]
             if db_type in db_types.keys():
@@ -93,6 +94,8 @@ class Grapp:
                 # generate graph
                 for query in graph['queries']:
                     r = None
+                    # check if colors exist in local chat
+                    _colors = query['colors'] if 'colors' in query else colors
                     if query['input']['type'] == 'raw':
                         r = query['input']['value']
                     # start graph generation
@@ -107,13 +110,14 @@ class Grapp:
                         )
                     elif query['output']['type'] == 'piechart':
                         r = preprocess.piechart(result[graph['queries'].index(query)], query)
-                    
+
                         design.append(
                             dash_layouts.create_piechart(
                                 labels=r['labels'],
                                 values=r['values'], 
                                 title=query['output']['title'],
-                                size=query['size']
+                                size=query['size'],
+                                colors=_colors
                             )
                         )
                 self.layout[graph['route']] = html.Div(
@@ -144,17 +148,6 @@ class Grapp:
             Input('interval-component', 'n_intervals'))
         def render(value):
             return cached_time()
-
-        @app.callback(
-            Output("pie-chart", "figure"), 
-            [Input("names", "value"), 
-            Input("values", "value")])
-        def generate_chart(names, values):
-            import pandas as pd
-            print('V_BSGRGSRGS')
-            df = pd.DataFrame({'Count': values, 'Municipio': names})
-            fig = px.pie(df, values='Count', names='Municipio')
-            return fig
 
     def start(self, dash_path="/", static_path="/static", static_directory="static"):
         grapp_server.mount(dash_path, WSGIMiddleware(self.app.server))
