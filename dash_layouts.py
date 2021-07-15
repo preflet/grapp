@@ -137,3 +137,27 @@ def create_treechart(labels=[],values=[],parents=[],title='',size=6):
             className='card-content'),
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
+
+def create_horizontal_barchart(x_axis=[],y_axis=[],color=[],title="",size='',x_axis_label='',y_axis_label='',color_label=''):
+    figure = px.bar(  { y_axis_label: y_axis,
+                        x_axis_label: x_axis,
+                        color_label: color }, 
+                        x=x_axis_label, 
+                        y=y_axis_label,
+                        color=color_label,
+                        barmode="stack"
+                    )
+    return html.Div(
+    html.Div([
+        html.Div(
+            html.Div([
+                html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
+                    dcc.Graph(
+                        id='horizontal-bar-chart-' + str(title).replace(' ', '-'),
+                        figure=figure,
+                        config=global_graph_config
+                    ),
+                ], className='content',),
+            className='card-content'),
+        ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
+    , className='column is-' + str(size))
