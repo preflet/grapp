@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-import plotly.express as px
 import squarify
 import uvicorn as uvicorn
 import preprocess
@@ -24,41 +23,11 @@ from db.load import load_from as db_types
 from jsonschema import validate
 # from flask_caching import Cache
 from datetime import datetime
+from schema import schema
 
 grapp_server = FastAPI()
 
-schema = {
-    "type": "object",
-    "properties": {
-        "name": {"type": "string"},
-        "host": {"type": "string"},
-        "port": {"type": "number"},
-        "graphs": {
-            "type": "array",
-            "properties": {
-                "name": {"type": "string"},
-                "route": {"type": "string"},
-                "db": {"type": "object",
-                       "properties": {
-                           "type": {"type": "string"},
-                           "credentials": {"type": "object"}
-                       },
-                       "required": ["type", "credentials"]
-                       },
-                "queries": {
-                    "type": "array",
-                    "properties": {
-                        "table": {"type": "string"},
-                        "type": {"type": "string"},
-                        "input": {"type": "string"},
-                    },
-                }
-            },
-            "required": ["name", "route", "db"]
-        },
-    },
-    "required": ["name", "graphs"]
-}
+theme = 'https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css'
 
 
 @grapp_server.get("/health")
@@ -72,20 +41,18 @@ class Grapp:
         self.meta = None
         self.port = 8080
         self.host = 'localhost'
-        self.app = dash.Dash(__name__, requests_pathname_prefix="/")
+        self.app = dash.Dash(__name__, requests_pathname_prefix="/", external_stylesheets=[theme])
         self.cache = hermes.Hermes(hermes.backend.dict.Backend, ttl=60)
         self.cache_timeout = 10
         self.app.config.suppress_callback_exceptions = True
-        self.app.layout = dash_layouts.layout
-        self.layout = {
-            'index': dash_layouts.index_layout
-        }
+        self.layout = {}
         self.load_meta(meta_path)
         self.schema = schema
         self.callbacks(self.app)
 
     def load_meta(self, path):
-        with open(path) as f:
+        with open(path,encoding="utf8") as f:
+
             self.meta = json.load(f)
 
         validate(instance=self.meta, schema=schema)
@@ -95,22 +62,82 @@ class Grapp:
         self.host = self.meta['host'] if 'host' in self.meta else self.host
         # construct graph layouts
         graphs = self.meta['graphs'] if 'graphs' in self.meta else []
+        # create basic route
+        self.app.layout = dash_layouts.wrap_layout(graphs)
+
         for graph in graphs:
-            print(graph)
+            # load colors
+            colors = graph['colors'] if 'colors' in graph else []
             # Connect to Graphs DB Here
             db_type = graph["db"]["type"]
             if db_type in db_types.keys():
                 # create db connection
                 credentials = graph['db']['credentials']
-                # load and run queries
+
+                # create app header
+                header = dash_layouts.create_header(
+                    graph['name'],
+                    graph['description'] if 'description' in graph else ''
+                )
+
+                design = []
+
+                # run all queries
+                pipeline = {}
+                for q in graph['queries']:
+                    if q['input']['type'] != 'raw':
+                        print("INDEX : "+str(graph['queries'].index(q)))
+                        pipeline[graph['queries'].index(q)] = q['input']
                 result = db_types[db_type](
-                    credentials, graph['queries'])
+                    credentials, [p for p in list(pipeline.values()) if p]
+                )
                 print(result)
 
-                self.layout.update(
-                    dash_layouts.create_layout(
-                        graph
-                    )
+                # generate graph
+                for query in graph['queries']:
+                    r = None
+                    # check if colors exist in local chat
+                    _colors = query['colors'] if 'colors' in query else colors
+                    if query['input']['type'] == 'raw':
+                        r = query['input']['value']
+                    # start graph generation
+                    if query['output']['type'] == 'indicator':
+                        r = preprocess.indicator(result[graph['queries'].index(query)])
+                        design.append(
+                            dash_layouts.create_indicator(
+                                value=r,
+                                title=query['output']['title'],
+                                size=query['size']
+                            )
+                        )
+                    elif query['output']['type'] == 'piechart':
+                        r = preprocess.piechart(result[graph['queries'].index(query)], query)
+                        design.append(
+                            dash_layouts.create_piechart(
+                                labels=r['labels'],
+                                values=r['values'], 
+                                title=query['output']['title'],
+                                size=query['size'],
+                                colors=_colors
+                            )
+                        )
+                    elif query['output']['type'] == 'barchart':
+                        r = preprocess.barchart(result[graph['queries'].index(query)],query)
+                        design.append(
+                            dash_layouts.create_barchart(
+                                labels=r['labels'],
+                                values=r['values'],
+                                title=query['output']['title'],
+                                x_axis_label=query['output']['x_axis_label'],
+                                y_axis_label=query['output']['y_axis_label'],
+                                size=query['size']
+                            )
+                        )
+                self.layout[graph['route']] = html.Div(
+                    html.Div([
+                        header,
+                        html.Div(design, className="columns is-multiline"),
+                    ], className="container")
                 )
             else:
                 print('Data source is currently not supported.')
@@ -119,23 +146,11 @@ class Grapp:
         @app.callback(dash.dependencies.Output('page-content', 'children'),
                       [dash.dependencies.Input('url', 'pathname')])
         def construct_layout(pathname):
-            print(pathname)
             if pathname in self.layout:
                 return self.layout[pathname]
             else:
-                return dash_layouts.index_layout
-
-        @app.callback(
-            [Output('piePlot1', 'figure'), Output('piePlot2', 'figure')],
-            [Input('pie-dropdown', 'value')])
-        def update_figure(pie_item):
-            return go.Figure(
-                data=[
-                    go.Pie(labels=preprocess.getvalues(pie_item))],
-                layout={"title": f"Distribution of {pie_item.title()}"}), go.Figure(
-                data=[
-                    go.Pie(labels=preprocess.getlabels(pie_item), values=preprocess.getvaluesforbalance(pie_item))],
-                layout={"title": f"Distribution of Balance over {pie_item.title()}"})
+                # render first graph always
+                return self.layout[list(self.layout.keys())[0]]
 
         @self.cache()
         def cached_time():

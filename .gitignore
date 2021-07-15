@@ -20,3 +20,7 @@ venv
 cache
 .*.xls
 *.env
+test.py
+test-*.csv
+test-*.json
+test-*.py
