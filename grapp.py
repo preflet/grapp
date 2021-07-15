@@ -133,6 +133,17 @@ class Grapp:
                                 size=query['size']
                             )
                         )
+                    elif query['output']['type'] == 'treechart':
+                        r = preprocess.treechart(result[graph['queries'].index(query)],query)
+                        design.append(
+                            dash_layouts.create_treechart(
+                                labels=r['labels'],
+                                values=r['values'],
+                                parents=r['parents'],
+                                title=query['output']['title'],
+                                size=query['size']
+                            )
+                        )
                 self.layout[graph['route']] = html.Div(
                     html.Div([
                         header,

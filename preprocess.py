@@ -35,3 +35,17 @@ def barchart(val, _input):
         'labels': labels,
         'values': values
     }
+
+def treechart(val, _input):
+    labels = []
+    values = []
+    parents = []
+    for v in val:
+        labels.append(v[_input['output']['labels']])
+        values.append(v[_input['output']['values']])
+    parents = ["" for i in values ]
+    return {
+        'labels': labels,
+        'values': values,
+        'parents':parents
+    }

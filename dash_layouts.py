@@ -115,3 +115,25 @@ def create_barchart(labels=[], values=[], title='', size=6,x_axis_label='',y_axi
             className='card-content'),
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
+
+def create_treechart(labels=[],values=[],parents=[],title='',size=6):
+    figure = go.Figure(go.Treemap(
+        labels = labels,
+        values = values,
+        parents = parents,
+        root_color="lightblue"
+    ))
+    return html.Div(
+    html.Div([
+        html.Div(
+            html.Div([
+                html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
+                    dcc.Graph(
+                        id='tree-chart-' + str(title).replace(' ', '-'),
+                        figure=figure,
+                        config=global_graph_config
+                    ),
+                ], className='content',),
+            className='card-content'),
+        ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
+    , className='column is-' + str(size))
