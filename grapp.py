@@ -41,7 +41,7 @@ class Grapp:
         self.meta = None
         self.port = 8080
         self.host = 'localhost'
-        self.app = dash.Dash(__name__, requests_pathname_prefix="/", external_stylesheets=[theme], title='Loading...')
+        self.app = dash.Dash(__name__, requests_pathname_prefix="/", external_stylesheets=[theme])
         self.cache = hermes.Hermes(hermes.backend.dict.Backend, ttl=60)
         self.cache_timeout = 10
         self.app.config.suppress_callback_exceptions = True
@@ -64,6 +64,7 @@ class Grapp:
         graphs = self.meta['graphs'] if 'graphs' in self.meta else []
         # create basic route
         self.app.layout = dash_layouts.wrap_layout(graphs)
+        
         # change app title
         self.app.title = self.meta['name'] if 'name' in self.meta else 'Grapp'
 
@@ -132,6 +133,17 @@ class Grapp:
                                 title=query['output']['title'],
                                 x_axis_label=query['output']['x_axis_label'],
                                 y_axis_label=query['output']['y_axis_label'],
+                                size=query['size']
+                            )
+                        )
+                    elif query['output']['type'] == 'treechart':
+                        r = preprocess.treechart(result[graph['queries'].index(query)],query)
+                        design.append(
+                            dash_layouts.create_treechart(
+                                labels=r['labels'],
+                                values=r['values'],
+                                parents=r['parents'],
+                                title=query['output']['title'],
                                 size=query['size']
                             )
                         )
