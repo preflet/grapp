@@ -41,7 +41,7 @@ class Grapp:
         self.meta = None
         self.port = 8080
         self.host = 'localhost'
-        self.app = dash.Dash(__name__, requests_pathname_prefix="/", external_stylesheets=[theme])
+        self.app = dash.Dash(__name__, requests_pathname_prefix="/", external_stylesheets=[theme], title='Loading...')
         self.cache = hermes.Hermes(hermes.backend.dict.Backend, ttl=60)
         self.cache_timeout = 10
         self.app.config.suppress_callback_exceptions = True
@@ -64,6 +64,8 @@ class Grapp:
         graphs = self.meta['graphs'] if 'graphs' in self.meta else []
         # create basic route
         self.app.layout = dash_layouts.wrap_layout(graphs)
+        # change app title
+        self.app.title = self.meta['name'] if 'name' in self.meta else 'Grapp'
 
         for graph in graphs:
             # load colors
