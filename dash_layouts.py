@@ -4,7 +4,10 @@ import plotly.graph_objs as go
 import plotly.express as px
 
 from datetime import datetime
-global_graph_config = {"displayModeBar":False,"displaylogo":False,"modeBarButtonsToRemove":["*"],"scrollZoom":False,"showAxisRangeEntryBoxes":False,"showAxisDragHandles":False  }
+global_graph_config = {"displayModeBar":False,"displaylogo":False,"modeBarButtonsToRemove":["*"],"scrollZoom":False,"showAxisRangeEntryBoxes":False,"showAxisDragHandles":False,"style":{"background-color": "coral"}  }
+plot_colors = {
+    'background-color': 'rgb(244, 244, 244)'
+}
 
 def wrap_layout(graph_data):
     routes = []
@@ -68,6 +71,10 @@ def create_piechart(labels=[], values=[], title='', size=6, colors=[]):
         values='value',
         names='label',
     )
+    figure.update_layout(
+        plot_bgcolor=plot_colors['background-color'],
+        paper_bgcolor=plot_colors['background-color']
+    )
     figure.update_traces(
         hoverinfo='label+percent',
         textinfo='value',
@@ -93,6 +100,10 @@ def create_piechart(labels=[], values=[], title='', size=6, colors=[]):
 def create_barchart(labels=[], values=[], title='', size=6,x_axis_label='',y_axis_label=''):
     figure = px.bar({y_axis_label: values,x_axis_label:labels}, 
        x=x_axis_label, y=y_axis_label
+    )
+    figure.update_layout(
+        plot_bgcolor=plot_colors['background-color'],
+        paper_bgcolor=plot_colors['background-color']
     )
     # figure.update_traces(
     #     hoverinfo='label+percent',
@@ -123,6 +134,10 @@ def create_treechart(labels=[],values=[],parents=[],title='',size=6):
         parents = parents,
         root_color="lightblue"
     ))
+    figure.update_layout(
+        plot_bgcolor=plot_colors['background-color'],
+        paper_bgcolor=plot_colors['background-color']
+    )
     return html.Div(
     html.Div([
         html.Div(
@@ -138,7 +153,7 @@ def create_treechart(labels=[],values=[],parents=[],title='',size=6):
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_horizontal_barchart(x_axis=[],y_axis=[],color=[],title="",size='',x_axis_label='',y_axis_label='',color_label=''):
+def create_horizontal_barchart(x_axis=[],y_axis=[],color=[],title='',size='',x_axis_label='',y_axis_label='',color_label=''):
     figure = px.bar(  { y_axis_label: y_axis,
                         x_axis_label: x_axis,
                         color_label: color }, 
@@ -147,6 +162,10 @@ def create_horizontal_barchart(x_axis=[],y_axis=[],color=[],title="",size='',x_a
                         color=color_label,
                         barmode="stack"
                     )
+    figure.update_layout(
+        plot_bgcolor=plot_colors['background-color'],
+        paper_bgcolor=plot_colors['background-color']
+    )
     return html.Div(
     html.Div([
         html.Div(
