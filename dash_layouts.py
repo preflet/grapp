@@ -41,7 +41,7 @@ def wrap_layout(graph_data):
         className='navbar',
         role="navigation",
         ),
-        html.Div(id='page-content')
+        html.Div(id='page-content'),
     ])
     return layout
 

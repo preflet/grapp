@@ -64,6 +64,9 @@ class Grapp:
         graphs = self.meta['graphs'] if 'graphs' in self.meta else []
         # create basic route
         self.app.layout = dash_layouts.wrap_layout(graphs)
+        
+        # change app title
+        self.app.title = self.meta['name'] if 'name' in self.meta else 'Grapp'
 
         for graph in graphs:
             # load colors
