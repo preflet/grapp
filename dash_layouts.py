@@ -4,6 +4,7 @@ import plotly.graph_objs as go
 import plotly.express as px
 
 from datetime import datetime
+global_graph_config = {"displayModeBar":False,"displaylogo":False,"modeBarButtonsToRemove":["*"],"scrollZoom":False,"showAxisRangeEntryBoxes":False,"showAxisDragHandles":False  }
 
 def wrap_layout(graph_data):
     routes = []
@@ -71,7 +72,7 @@ def create_piechart(labels=[], values=[], title='', size=6, colors=[]):
         hoverinfo='label+percent',
         textinfo='value',
         textfont_size=20,
-        paper_bgcolor='rgb(244, 244, 244)',
+        # paper_bgcolor='rgb(244, 244, 244)',
         marker=dict(colors=colors, line=dict(color='#000000', width=2))
     )
     return html.Div(
@@ -81,7 +82,34 @@ def create_piechart(labels=[], values=[], title='', size=6, colors=[]):
                     html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
                     dcc.Graph(
                         id='pie-chart-' + str(title).replace(' ', '-'),
-                        figure=figure
+                        figure=figure,
+                        config=global_graph_config
+                    ),
+                ], className='content',),
+            className='card-content'),
+        ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
+    , className='column is-' + str(size))
+
+def create_barchart(labels=[], values=[], title='', size=6,x_axis_label='',y_axis_label=''):
+    figure = px.bar({y_axis_label: values,x_axis_label:labels}, 
+       x=x_axis_label, y=y_axis_label
+    )
+    # figure.update_traces(
+    #     hoverinfo='label+percent',
+    #     # textinfo='value',
+    #     textfont_size=20,
+    #     # paper_bgcolor='rgb(244, 244, 244)',
+    #     # marker=dict(colors=colors, line=dict(color='#000000', width=2))
+    # )
+    return html.Div(
+        html.Div([
+            html.Div(
+                html.Div([
+                    html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
+                    dcc.Graph(
+                        id='bar-chart-' + str(title).replace(' ', '-'),
+                        figure=figure,
+                        config=global_graph_config
                     ),
                 ], className='content',),
             className='card-content'),

@@ -37,6 +37,10 @@ schema = {
                                 "info": {"type": "string"},
                                 "title": {"type": "string"},
                                 "type": {"type": "string"}, # accepts - indicator, piechart
+                                "x_axis_label": {"type": "string"},
+                                "y_axis_label": {"type": "string"},
+                                "values": {"type": "string"},
+                                "labels": {"type": "string"},
                             },
                             "required": ["type"]
                         },

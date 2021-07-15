@@ -18,7 +18,19 @@ def piechart(val, _input):
     values = []
     for v in val:
         labels.append(v[_input['output']['labels']])
-        values.append(v[_input['output']['value']])
+        values.append(v[_input['output']['values']])
+    return {
+        'labels': labels,
+        'values': values
+    }
+
+def barchart(val, _input):
+    labels = []
+    values = []
+    for v in val:
+        print(v)
+        labels.append(v[_input['output']['labels']])
+        values.append(v[_input['output']['values']])
     return {
         'labels': labels,
         'values': values

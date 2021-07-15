@@ -51,7 +51,8 @@ class Grapp:
         self.callbacks(self.app)
 
     def load_meta(self, path):
-        with open(path) as f:
+        with open(path,encoding="utf8") as f:
+
             self.meta = json.load(f)
 
         validate(instance=self.meta, schema=schema)
@@ -85,6 +86,7 @@ class Grapp:
                 pipeline = {}
                 for q in graph['queries']:
                     if q['input']['type'] != 'raw':
+                        print("INDEX : "+str(graph['queries'].index(q)))
                         pipeline[graph['queries'].index(q)] = q['input']
                 result = db_types[db_type](
                     credentials, [p for p in list(pipeline.values()) if p]
@@ -110,7 +112,6 @@ class Grapp:
                         )
                     elif query['output']['type'] == 'piechart':
                         r = preprocess.piechart(result[graph['queries'].index(query)], query)
-
                         design.append(
                             dash_layouts.create_piechart(
                                 labels=r['labels'],
@@ -118,6 +119,18 @@ class Grapp:
                                 title=query['output']['title'],
                                 size=query['size'],
                                 colors=_colors
+                            )
+                        )
+                    elif query['output']['type'] == 'barchart':
+                        r = preprocess.barchart(result[graph['queries'].index(query)],query)
+                        design.append(
+                            dash_layouts.create_barchart(
+                                labels=r['labels'],
+                                values=r['values'],
+                                title=query['output']['title'],
+                                x_axis_label=query['output']['x_axis_label'],
+                                y_axis_label=query['output']['y_axis_label'],
+                                size=query['size']
                             )
                         )
                 self.layout[graph['route']] = html.Div(
