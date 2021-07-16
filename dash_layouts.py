@@ -6,6 +6,7 @@ import plotly.express as px
 from dash_leaflet import Map, TileLayer, GeoJSON
 from datetime import datetime
 from dash_leaflet.express import dicts_to_geojson
+from dash_extensions.javascript import assign
 
 global_graph_config = {"displayModeBar":False,"displaylogo":False,"modeBarButtonsToRemove":["*"],"scrollZoom":False,"showAxisRangeEntryBoxes":False,"showAxisDragHandles":False,"style":{"background-color": "coral"}  }
 plot_colors = {
@@ -185,19 +186,29 @@ def create_horizontal_barchart(x_axis=[],y_axis=[],color=[],title='',size='',x_a
     , className='column is-' + str(size))
 
 def create_map(title='', data=[], size=6):
-    geojson = dicts_to_geojson([{**d, **dict(tooltip=c['name'])} for d in data])
-    # Create drop down options.
-    dd_options = [dict(value=c["name"], label=c["name"]) for c in data]
-    dd_defaults = [o["value"] for o in dd_options]
+    geojson = dicts_to_geojson([{**d, **dict(tooltip=d['name'])} for d in data])
+    dd_options = [dict(value=c['name'], label=c['name']) for c in data]
+    dd_defaults = [o['value'] for o in dd_options]
+    dd_defaults = list(set(dd_defaults))
+    point_to_layer = assign("""function(feature, latlng, context){
+        return L.circleMarker(latlng);  // sender a simple circle marker.
+    }""")
+    map = Map(
+        children=[
+            TileLayer(),
+            GeoJSON(
+                data=geojson, hideout=dd_defaults, id='geojson', zoomToBounds=True, options=dict(pointToLayer=point_to_layer)
+            )
+        ], style={'width': '100%', 'height': '50vh', 'margin': 'auto', 'display': 'block'}, id='map'
+    )
+
+                
     return html.Div(
         html.Div([
             html.Div(
                 html.Div([
                     html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
-                    Map(children=[
-                        TileLayer(),
-                        GeoJSON(data=geojson, hideout=dd_defaults, id='geojson', zoomToBounds=True)
-                    ], style={'width': '100%', 'height': '50vh', 'margin': 'auto', 'display': 'block'}, id='map'),
+                    map,
                     ], className='content',),
                 className='card-content'),
             ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  

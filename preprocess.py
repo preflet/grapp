@@ -66,8 +66,4 @@ def horizontal_barchart(val, _input):
     }
 
 def map(val, _input):
-    print(val)
-    print(_input)
-    return {
-
-    }
+    return val
