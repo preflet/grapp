@@ -147,6 +147,20 @@ class Grapp:
                                 size=query['size']
                             )
                         )
+                    elif query['output']['type'] == 'horizontal-barchart':
+                        r = preprocess.horizontal_barchart(result[graph['queries'].index(query)],query)
+                        design.append(
+                            dash_layouts.create_horizontal_barchart(
+                                x_axis=r['x_axis'],
+                                y_axis=r['y_axis'],
+                                color=r['color'],
+                                title=query['output']['title'],
+                                size=query['size'],
+                                x_axis_label = query['output']['x_axis_label'],
+                                y_axis_label = query['output']['y_axis_label'],
+                                color_label = query['output']['color']
+                            )
+                        )
                 self.layout[graph['route']] = html.Div(
                     html.Div([
                         header,
