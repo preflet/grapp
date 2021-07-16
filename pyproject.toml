@@ -28,6 +28,7 @@ dnspython = "^2.1.0"
 dash-bootstrap-components = "^0.12.2"
 millify = "^0.1.1"
 tornado = "^6.1"
+dash-leaflet = "^0.1.16"
 
 [tool.poetry.dev-dependencies]
 pyinstaller = "^4.4"

@@ -36,7 +36,7 @@ schema = {
                             "properties": {
                                 "info": {"type": "string"},
                                 "title": {"type": "string"},
-                                "type": {"type": "string"}, # accepts - indicator, piechart
+                                "type": {"type": "string"}, # accepts: indicator, piechart, map-scatter-plot, donut, 
                                 "x_axis_label": {"type": "string"},
                                 "y_axis_label": {"type": "string"},
                                 "values": {"type": "string"},

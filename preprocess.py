@@ -50,7 +50,7 @@ def treechart(val, _input):
         'parents':parents
     }
 
-def horizontal_barchart(val,_input):
+def horizontal_barchart(val, _input):
     x_axis = []
     y_axis = []
     color = []
@@ -63,4 +63,11 @@ def horizontal_barchart(val,_input):
         'x_axis': x_axis,
         'y_axis': y_axis,
         'color': color
+    }
+
+def map(val, _input):
+    print(val)
+    print(_input)
+    return {
+
     }

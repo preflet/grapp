@@ -177,6 +177,15 @@ class Grapp:
                                 color_label = query['output']['color']
                             )
                         )
+                    elif query['output']['type'] == 'map-scatter-plot':
+                        print('dfdfd')
+                        r = preprocess.map(result[graph['queries'].index(query)],query)
+                        design.append(
+                            dash_layouts.create_map(
+                                title=query['output']['title'],
+                                size=query['size'],
+                            )
+                        )
                 self.layout[graph['route']] = html.Div(
                     html.Div([
                         header,

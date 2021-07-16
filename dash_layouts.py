@@ -3,7 +3,10 @@ import dash_html_components as html
 import plotly.graph_objs as go
 import plotly.express as px
 
+from dash_leaflet import Map, TileLayer, GeoJSON
 from datetime import datetime
+from dash_leaflet.express import dicts_to_geojson
+
 global_graph_config = {"displayModeBar":False,"displaylogo":False,"modeBarButtonsToRemove":["*"],"scrollZoom":False,"showAxisRangeEntryBoxes":False,"showAxisDragHandles":False,"style":{"background-color": "coral"}  }
 plot_colors = {
     'background-color': 'rgb(244, 244, 244)'
@@ -180,3 +183,23 @@ def create_horizontal_barchart(x_axis=[],y_axis=[],color=[],title='',size='',x_a
             className='card-content'),
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
+
+def create_map(title='', data=[], size=6):
+    geojson = dicts_to_geojson([{**d, **dict(tooltip=c['name'])} for d in data])
+    # Create drop down options.
+    dd_options = [dict(value=c["name"], label=c["name"]) for c in data]
+    dd_defaults = [o["value"] for o in dd_options]
+    return html.Div(
+        html.Div([
+            html.Div(
+                html.Div([
+                    html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
+                    Map(children=[
+                        TileLayer(),
+                        GeoJSON(data=geojson, hideout=dd_defaults, id='geojson', zoomToBounds=True)
+                    ], style={'width': '100%', 'height': '50vh', 'margin': 'auto', 'display': 'block'}, id='map'),
+                    ], className='content',),
+                className='card-content'),
+            ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
+        , className='column is-' + str(size)
+    )
