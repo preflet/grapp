@@ -29,8 +29,14 @@ from os import path, getcwd
 
 grapp_server = FastAPI()
 
-theme = 'https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css'
+styles = [
+    'https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js'
+]
 
+scripts = [
+   'https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js' 
+]
 
 @grapp_server.get("/health")
 async def root():
@@ -39,11 +45,11 @@ async def root():
 
 class Grapp:
 
-    def __init__(self, meta_path="meta.json"):
+    def __init__(self, meta_path='meta.json'):
         self.meta = None
         self.port = 8080
         self.host = 'localhost'
-        self.app = dash.Dash(__name__, requests_pathname_prefix="/", external_stylesheets=[theme])
+        self.app = dash.Dash(__name__, requests_pathname_prefix='/', external_stylesheets=styles, external_scripts=scripts)
         self.cache = hermes.Hermes(hermes.backend.dict.Backend, ttl=60)
         self.cache_timeout = 10
         self.app.config.suppress_callback_exceptions = True
@@ -126,6 +132,18 @@ class Grapp:
                                 colors=_colors
                             )
                         )
+                    elif query['output']['type'] == 'donut':
+                        r = preprocess.piechart(result[graph['queries'].index(query)], query)
+                        design.append(
+                            dash_layouts.create_piechart(
+                                labels=r['labels'],
+                                values=r['values'], 
+                                title=query['output']['title'],
+                                size=query['size'],
+                                colors=_colors,
+                                hole=0.5
+                            )
+                        )
                     elif query['output']['type'] == 'barchart':
                         r = preprocess.barchart(result[graph['queries'].index(query)],query)
                         design.append(
@@ -147,7 +165,8 @@ class Grapp:
                                 values=r['values'],
                                 parents=r['parents'],
                                 title=query['output']['title'],
-                                size=query['size']
+                                size=query['size'],
+                                colors=_colors
                             )
                         )
                     elif query['output']['type'] == 'horizontal-barchart':
@@ -162,6 +181,16 @@ class Grapp:
                                 x_axis_label = query['output']['x_axis_label'],
                                 y_axis_label = query['output']['y_axis_label'],
                                 color_label = query['output']['color']
+                            )
+                        )
+                    elif query['output']['type'] == 'map-scatter-plot':
+                        print('dfdfd')
+                        r = preprocess.map(result[graph['queries'].index(query)],query)
+                        design.append(
+                            dash_layouts.create_map(
+                                title=query['output']['title'],
+                                size=query['size'],
+                                data=r
                             )
                         )
                 self.layout[graph['route']] = html.Div(
