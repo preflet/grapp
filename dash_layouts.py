@@ -176,3 +176,34 @@ def create_horizontal_barchart(x_axis=[],y_axis=[],color=[],title='',size='',x_a
             className='card-content'),
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
+
+def create_bubblechart(x_axis=[],y_axis=[],bubbles=[],title='',size='',x_axis_label='',y_axis_label='',bubble_label=''):
+    figure = px.scatter(  { y_axis_label: y_axis,
+                        x_axis_label: x_axis,
+                        bubble_label: bubbles }, 
+                        x=x_axis_label, 
+                        y=y_axis_label,
+                        size=x_axis_label,
+                        color=bubble_label,
+                        hover_name=bubble_label,
+                        log_x=True, 
+                        size_max=60
+                    )
+    figure.update_layout(
+        plot_bgcolor=plot_colors['background-color'],
+        paper_bgcolor=plot_colors['background-color']
+    )
+    return html.Div(
+    html.Div([
+        html.Div(
+            html.Div([
+                html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
+                    dcc.Graph(
+                        id='bubble-chart-' + str(title).replace(' ', '-'),
+                        figure=figure,
+                        config=global_graph_config
+                    ),
+                ], className='content',),
+            className='card-content'),
+        ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
+    , className='column is-' + str(size))

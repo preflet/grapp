@@ -64,3 +64,19 @@ def horizontal_barchart(val,_input):
         'y_axis': y_axis,
         'color': color
     }
+
+def bubblechart(val,_input):
+    x_axis = []
+    y_axis = []
+    bubbles = []
+
+    for v in val:
+        x_axis.append(v[_input['output']['x_axis_label']])
+        y_axis.append(v[_input['output']['y_axis_label']])
+        bubbles.append(v[_input['output']['bubbles']])
+
+    return {
+        'x_axis': x_axis,
+        'y_axis': y_axis,
+        'bubbles': bubbles
+    }
