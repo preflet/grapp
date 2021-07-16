@@ -126,6 +126,18 @@ class Grapp:
                                 colors=_colors
                             )
                         )
+                    elif query['output']['type'] == 'donut':
+                        r = preprocess.piechart(result[graph['queries'].index(query)], query)
+                        design.append(
+                            dash_layouts.create_piechart(
+                                labels=r['labels'],
+                                values=r['values'], 
+                                title=query['output']['title'],
+                                size=query['size'],
+                                colors=_colors,
+                                hole=0.5
+                            )
+                        )
                     elif query['output']['type'] == 'barchart':
                         r = preprocess.barchart(result[graph['queries'].index(query)],query)
                         design.append(
@@ -147,7 +159,8 @@ class Grapp:
                                 values=r['values'],
                                 parents=r['parents'],
                                 title=query['output']['title'],
-                                size=query['size']
+                                size=query['size'],
+                                colors=_colors
                             )
                         )
                     elif query['output']['type'] == 'horizontal-barchart':

@@ -66,10 +66,11 @@ def create_indicator(title='-', value='-', info='', size=4):
         ], className='card', style={'background-color': 'rgb(15, 70, 145)'})    
     , className='column is-' + str(size))
 
-def create_piechart(labels=[], values=[], title='', size=6, colors=[]):
+def create_piechart(labels=[], values=[], title='', size=6, colors=[], hole=0.0):
     figure = px.pie({'value': values,'label':labels}, 
         values='value',
         names='label',
+        hole=hole
     )
     figure.update_layout(
         plot_bgcolor=plot_colors['background-color'],
@@ -123,7 +124,7 @@ def create_barchart(labels=[], values=[], title='', size=6, x_axis_label='', y_a
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_treechart(labels=[],values=[],parents=[],title='',size=6):
+def create_treechart(labels=[],values=[],parents=[],title='',size=6, colors=[]):
     figure = go.Figure(go.Treemap(
         labels = labels,
         values = values,
@@ -133,6 +134,9 @@ def create_treechart(labels=[],values=[],parents=[],title='',size=6):
     figure.update_layout(
         plot_bgcolor=plot_colors['background-color'],
         paper_bgcolor=plot_colors['background-color']
+    )
+    figure.update_traces(
+        marker=dict(colors=colors, line=dict(color='#000000', width=2))
     )
     return html.Div(
     html.Div([
