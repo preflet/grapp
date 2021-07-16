@@ -3,7 +3,11 @@ import dash_html_components as html
 import plotly.graph_objs as go
 import plotly.express as px
 
+from dash_leaflet import Map, TileLayer, GeoJSON
 from datetime import datetime
+from dash_leaflet.express import dicts_to_geojson
+from dash_extensions.javascript import assign
+
 global_graph_config = {"displayModeBar":False,"displaylogo":False,"modeBarButtonsToRemove":["*"],"scrollZoom":False,"showAxisRangeEntryBoxes":False,"showAxisDragHandles":False,"style":{"background-color": "coral"}  }
 plot_colors = {
     'background-color': 'rgb(244, 244, 244)'
@@ -66,10 +70,11 @@ def create_indicator(title='-', value='-', info='', size=4):
         ], className='card', style={'background-color': 'rgb(15, 70, 145)'})    
     , className='column is-' + str(size))
 
-def create_piechart(labels=[], values=[], title='', size=6, colors=[]):
+def create_piechart(labels=[], values=[], title='', size=6, colors=[], hole=0.0):
     figure = px.pie({'value': values,'label':labels}, 
         values='value',
         names='label',
+        hole=hole
     )
     figure.update_layout(
         plot_bgcolor=plot_colors['background-color'],
@@ -123,7 +128,7 @@ def create_barchart(labels=[], values=[], title='', size=6, x_axis_label='', y_a
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_treechart(labels=[],values=[],parents=[],title='',size=6):
+def create_treechart(labels=[],values=[],parents=[],title='',size=6, colors=[]):
     figure = go.Figure(go.Treemap(
         labels = labels,
         values = values,
@@ -133,6 +138,9 @@ def create_treechart(labels=[],values=[],parents=[],title='',size=6):
     figure.update_layout(
         plot_bgcolor=plot_colors['background-color'],
         paper_bgcolor=plot_colors['background-color']
+    )
+    figure.update_traces(
+        marker=dict(colors=colors, line=dict(color='#000000', width=2))
     )
     return html.Div(
     html.Div([
@@ -207,3 +215,33 @@ def create_bubblechart(x_axis=[],y_axis=[],bubbles=[],title='',size='',x_axis_la
             className='card-content'),
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
+
+def create_map(title='', data=[], size=6):
+    geojson = dicts_to_geojson([{**d, **dict(tooltip=d['name'])} for d in data])
+    dd_options = [dict(value=c['name'], label=c['name']) for c in data]
+    dd_defaults = [o['value'] for o in dd_options]
+    dd_defaults = list(set(dd_defaults))
+    point_to_layer = assign("""function(feature, latlng, context){
+        return L.circleMarker(latlng);  // sender a simple circle marker.
+    }""")
+    map = Map(
+        children=[
+            TileLayer(),
+            GeoJSON(
+                data=geojson, hideout=dd_defaults, id='geojson', zoomToBounds=True, options=dict(pointToLayer=point_to_layer)
+            )
+        ], style={'width': '100%', 'height': '50vh', 'margin': 'auto', 'display': 'block'}, id='map'
+    )
+
+                
+    return html.Div(
+        html.Div([
+            html.Div(
+                html.Div([
+                    html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
+                    map,
+                    ], className='content',),
+                className='card-content'),
+            ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
+        , className='column is-' + str(size)
+    )
