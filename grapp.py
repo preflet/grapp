@@ -25,6 +25,7 @@ from jsonschema import validate
 from datetime import datetime
 from schema import schema
 from webbrowser import open as browser
+from os import path, getcwd
 
 grapp_server = FastAPI()
 
@@ -42,12 +43,12 @@ class Grapp:
         self.meta = None
         self.port = 8080
         self.host = 'localhost'
-        self.app = dash.Dash(__name__, requests_pathname_prefix="/", external_stylesheets=[theme], title='Loading...')
+        self.app = dash.Dash(__name__, requests_pathname_prefix="/", external_stylesheets=[theme])
         self.cache = hermes.Hermes(hermes.backend.dict.Backend, ttl=60)
         self.cache_timeout = 10
         self.app.config.suppress_callback_exceptions = True
         self.layout = {}
-        self.load_meta(meta_path)
+        self.load_meta(path.join(getcwd(), meta_path))
         self.schema = schema
         self.callbacks(self.app)
 
@@ -65,6 +66,7 @@ class Grapp:
         graphs = self.meta['graphs'] if 'graphs' in self.meta else []
         # create basic route
         self.app.layout = dash_layouts.wrap_layout(graphs)
+        
         # change app title
         self.app.title = self.meta['name'] if 'name' in self.meta else 'Grapp'
 
@@ -133,7 +135,33 @@ class Grapp:
                                 title=query['output']['title'],
                                 x_axis_label=query['output']['x_axis_label'],
                                 y_axis_label=query['output']['y_axis_label'],
+                                size=query['size'],
+                                colors=_colors
+                            )
+                        )
+                    elif query['output']['type'] == 'treechart':
+                        r = preprocess.treechart(result[graph['queries'].index(query)],query)
+                        design.append(
+                            dash_layouts.create_treechart(
+                                labels=r['labels'],
+                                values=r['values'],
+                                parents=r['parents'],
+                                title=query['output']['title'],
                                 size=query['size']
+                            )
+                        )
+                    elif query['output']['type'] == 'horizontal-barchart':
+                        r = preprocess.horizontal_barchart(result[graph['queries'].index(query)],query)
+                        design.append(
+                            dash_layouts.create_horizontal_barchart(
+                                x_axis=r['x_axis'],
+                                y_axis=r['y_axis'],
+                                color=r['color'],
+                                title=query['output']['title'],
+                                size=query['size'],
+                                x_axis_label = query['output']['x_axis_label'],
+                                y_axis_label = query['output']['y_axis_label'],
+                                color_label = query['output']['color']
                             )
                         )
                 self.layout[graph['route']] = html.Div(

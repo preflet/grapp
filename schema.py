@@ -41,6 +41,7 @@ schema = {
                                 "y_axis_label": {"type": "string"},
                                 "values": {"type": "string"},
                                 "labels": {"type": "string"},
+                                "color": {"type": "string"},
                             },
                             "required": ["type"]
                         },

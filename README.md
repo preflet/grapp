@@ -13,4 +13,33 @@ A dynamic visualization tool with Plotly.js, Dash, Fastapi and Redis. Currently 
 - [ ] Create a dash app route with iframe support
 - [x] Standlone deployment
 
-## Create a bundle
+## Create Standalone
+
+- Windows
+
+Run the command in `Command Prompt` and set environment variables.
+
+```bash
+pyinstaller test-grapp.py ^
+    --name ENA ^
+    --add-data ".env;." ^ # if needed and doesn't contain sensitive uri
+    --add-data "assets/*;assets" ^
+    --add-data "static/*;static" ^
+    --add-data "test-meta.json;." ^
+    --windowed ^
+    --hidden-import uvicorn ^
+    --hidden-import uvicorn.logging ^
+    --hidden-import uvicorn.loops ^
+    --hidden-import uvicorn.loops.auto ^
+    --hidden-import uvicorn.protocols ^
+    --hidden-import uvicorn.protocols.http ^
+    --hidden-import uvicorn.protocols.http.auto ^
+    --hidden-import uvicorn.protocols.websockets ^
+    --hidden-import uvicorn.protocols.websockets.auto ^
+    --hidden-import uvicorn.lifespan ^
+    --hidden-import uvicorn.lifespan.on ^
+    --hidden-import tornado ^
+    --target-architecture x86_64 ^
+    --onefile ^
+    --icon "assets/favicon.ico"
+```
