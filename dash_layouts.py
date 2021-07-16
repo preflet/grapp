@@ -97,21 +97,17 @@ def create_piechart(labels=[], values=[], title='', size=6, colors=[]):
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_barchart(labels=[], values=[], title='', size=6,x_axis_label='',y_axis_label=''):
+def create_barchart(labels=[], values=[], title='', size=6, x_axis_label='', y_axis_label='', colors=[]):
     figure = px.bar({y_axis_label: values,x_axis_label:labels}, 
-       x=x_axis_label, y=y_axis_label
+       x=x_axis_label, y=y_axis_label,
     )
     figure.update_layout(
         plot_bgcolor=plot_colors['background-color'],
         paper_bgcolor=plot_colors['background-color']
     )
-    # figure.update_traces(
-    #     hoverinfo='label+percent',
-    #     # textinfo='value',
-    #     textfont_size=20,
-    #     # paper_bgcolor='rgb(244, 244, 244)',
-    #     # marker=dict(colors=colors, line=dict(color='#000000', width=2))
-    # )
+    figure.update_traces(
+        marker=dict(color=colors, line=dict(color='#000000', width=2))
+    )
     return html.Div(
         html.Div([
             html.Div(

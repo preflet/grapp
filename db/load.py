@@ -1,12 +1,9 @@
 from db.mongodb import Mongo
 from db.mysqldb import SQL
-from dotenv import load_dotenv
 
 import dask.dataframe as dd
 import pandas as pd
 import preprocess
-
-load_dotenv()
 
 def load_from_file(path):
     ddf = dd.read_csv(path)

@@ -24,3 +24,6 @@ test.py
 test-*.csv
 test-*.json
 test-*.py
+*.spec
+build/
+build.md

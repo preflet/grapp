@@ -24,6 +24,8 @@ from jsonschema import validate
 # from flask_caching import Cache
 from datetime import datetime
 from schema import schema
+from webbrowser import open as browser
+from os import path, getcwd
 
 grapp_server = FastAPI()
 
@@ -46,7 +48,7 @@ class Grapp:
         self.cache_timeout = 10
         self.app.config.suppress_callback_exceptions = True
         self.layout = {}
-        self.load_meta(meta_path)
+        self.load_meta(path.join(getcwd(), meta_path))
         self.schema = schema
         self.callbacks(self.app)
 
@@ -133,7 +135,8 @@ class Grapp:
                                 title=query['output']['title'],
                                 x_axis_label=query['output']['x_axis_label'],
                                 y_axis_label=query['output']['y_axis_label'],
-                                size=query['size']
+                                size=query['size'],
+                                colors=_colors
                             )
                         )
                     elif query['output']['type'] == 'treechart':
@@ -194,4 +197,5 @@ class Grapp:
         grapp_server.mount(dash_path, WSGIMiddleware(self.app.server))
         grapp_server.mount(static_path, StaticFiles(
             directory=static_directory), name="static")
+        browser(f'http://{"localhost" if self.host == "0.0.0.0" else self.host}:{self.port}')
         uvicorn.run(grapp_server, host=self.host, port=self.port)
