@@ -13,7 +13,7 @@ pre-commit = "^2.11.1"
 motor = "^2.3.1"
 dash = "^1.19.0"
 squarify = "^0.4.3"
-uvicorn = "^0.13.4"
+uvicorn = {extras = ["logging"], version = "^0.14.0"}
 fastapi = "^0.63.0"
 aiofiles = "^0.6.0"
 dask = "^2021.4.0"
@@ -27,8 +27,10 @@ Flask-Caching = "^1.10.1"
 dnspython = "^2.1.0"
 dash-bootstrap-components = "^0.12.2"
 millify = "^0.1.1"
+tornado = "^6.1"
 
 [tool.poetry.dev-dependencies]
+pyinstaller = "^4.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

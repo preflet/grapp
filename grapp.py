@@ -24,6 +24,7 @@ from jsonschema import validate
 # from flask_caching import Cache
 from datetime import datetime
 from schema import schema
+from webbrowser import open as browser
 
 grapp_server = FastAPI()
 
@@ -168,4 +169,5 @@ class Grapp:
         grapp_server.mount(dash_path, WSGIMiddleware(self.app.server))
         grapp_server.mount(static_path, StaticFiles(
             directory=static_directory), name="static")
+        browser(f'http://{"localhost" if self.host == "0.0.0.0" else self.host}:{self.port}')
         uvicorn.run(grapp_server, host=self.host, port=self.port)

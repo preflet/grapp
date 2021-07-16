@@ -11,3 +11,6 @@ A dynamic visualization tool with Plotly.js, Dash, Fastapi and Redis. Currently 
 - [x] Add a cache layer (redis, in-memory)
 - [ ] Create raw data API
 - [ ] Create a dash app route with iframe support
+- [x] Standlone deployment
+
+## Create a bundle
