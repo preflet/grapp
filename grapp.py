@@ -26,16 +26,15 @@ from datetime import datetime
 from schema import schema
 from webbrowser import open as browser
 from os import path, getcwd
+from utils import load_query
 
 grapp_server = FastAPI()
 
 styles = [
     'https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js'
 ]
 
 scripts = [
-   'https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js' 
 ]
 
 @grapp_server.get("/health")
@@ -54,6 +53,7 @@ class Grapp:
         self.cache_timeout = 10
         self.app.config.suppress_callback_exceptions = True
         self.layout = {}
+        self.filter_query = []
         self.load_meta(path.join(getcwd(), meta_path))
         self.schema = schema
         self.callbacks(self.app)
@@ -90,6 +90,12 @@ class Grapp:
                     graph['name'],
                     graph['description'] if 'description' in graph else ''
                 )
+
+                # add filters if any
+                filters = ''
+                if 'filters' in graph:
+                    # get ready with all filter query as base before running graphs
+                    filters, self.filter_query = dash_layouts.create_filters(graph['filters'])
 
                 design = []
 
@@ -195,6 +201,8 @@ class Grapp:
                                 x_axis_label = query['output']['x_axis_label'],
                                 y_axis_label = query['output']['y_axis_label'],
                                 bubble_label = query['output']['bubbles']
+                            )
+                        )
                     elif query['output']['type'] == 'map-scatter-plot':
                         print('dfdfd')
                         r = preprocess.map(result[graph['queries'].index(query)],query)
@@ -208,11 +216,33 @@ class Grapp:
                 self.layout[graph['route']] = html.Div(
                     html.Div([
                         header,
+                        filters,
                         html.Div(design, className="columns is-multiline"),
                     ], className="container")
                 )
             else:
                 print('Data source is currently not supported.')
+
+    def update_graph_with_filter(self, query):
+        # now lets add a base query to all extra queries
+        for every_query in self.filter_query:
+            if every_query['type'].__contains__(query['type']):
+                updated_query = query['meta']
+                print(every_query['query'])
+                every_query['query'] = load_query(every_query['query'])
+                if 'start' in updated_query:
+                    every_query['query'] = every_query['query']\
+                        .replace('%start%', f"'{parse(updated_query['start'])}'")
+                else:
+                    every_query['query'] = every_query['query']\
+                        .replace('%start%', 'null')
+                if 'end' in updated_query:
+                    every_query['query'] = every_query['query']\
+                    .replace('%end%', f"'{parse(updated_query['end'])}'")
+                else:
+                    every_query['query'] = every_query['query']\
+                        .replace('%end%', 'null')
+        return self.filter_query
 
     def callbacks(self, app):
         @app.callback(dash.dependencies.Output('page-content', 'children'),
@@ -233,6 +263,23 @@ class Grapp:
             Input('interval-component', 'n_intervals'))
         def render(value):
             return cached_time()
+
+        @app.callback(
+            dash.dependencies.Output('output-date-picker', 'children'),
+            [dash.dependencies.Input('date-picker', 'start_date'),
+            dash.dependencies.Input('date-picker', 'end_date')])
+        def update_output(start_date, end_date):
+            print('yres I am called', start_date, end_date)
+            meta = {}
+            if start_date:
+                meta['start'] = start_date
+            if end_date:
+                meta['end'] = end_date
+            self.update_graph_with_filter({
+                'type': 'DatePicker',
+                'meta': meta
+            })
+            
 
     def start(self, dash_path="/", static_path="/static", static_directory="static"):
         grapp_server.mount(dash_path, WSGIMiddleware(self.app.server))

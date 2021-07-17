@@ -1,9 +1,11 @@
 from db.mongodb import Mongo
 from db.mysqldb import SQL
+from dateutil.parser import parse
 
 import dask.dataframe as dd
 import pandas as pd
 import preprocess
+
 
 def load_from_file(path):
     ddf = dd.read_csv(path)
@@ -29,7 +31,8 @@ def load_from_mysql(credentials, q):
     df = pd.DataFrame(result)
     # df.columns = ["created_date","year_week","date_m","time_m"]
 
-
-load_from = {'mongo': load_from_mongodb,
-             'mysql': load_from_mysql,
-             'file': load_from_file_creds}
+load_from = {
+    'mongo': load_from_mongodb,
+    'mysql': load_from_mysql,
+    'file': load_from_file_creds
+}

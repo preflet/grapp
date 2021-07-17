@@ -1,19 +1,10 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from asyncio import get_event_loop
-from json import loads
 from os import getenv
-from bson import ObjectId, json_util
+from bson import ObjectId
 from pymongo import MongoClient
 from db import cache
-
-
-def dump_query(q):
-    return json_util.dumps(q).replace('"', "'")
-
-
-def load_query(q):
-    return loads(q.replace("'", '"').replace("$oid", "objectId"))
-
+from utils import dump_query, load_query
 
 class Mongo:
     connection = []

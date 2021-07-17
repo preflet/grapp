@@ -7,6 +7,7 @@ from dash_leaflet import Map, TileLayer, GeoJSON
 from datetime import datetime
 from dash_leaflet.express import dicts_to_geojson
 from dash_extensions.javascript import assign
+from datetime import date
 
 global_graph_config = {"displayModeBar":False,"displaylogo":False,"modeBarButtonsToRemove":["*"],"scrollZoom":False,"showAxisRangeEntryBoxes":False,"showAxisDragHandles":False,"style":{"background-color": "coral"}  }
 plot_colors = {
@@ -245,3 +246,33 @@ def create_map(title='', data=[], size=6):
             ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
         , className='column is-' + str(size)
     )
+
+def create_filters(filters):
+    layout = []
+    base_query = []
+    for filter in filters:
+        if filter['filter_type'] == 'DatePickerRange':
+            layout.append(
+                html.Div(
+                    dcc.DatePickerRange(
+                        id='date-picker',
+                    )
+                , className='column is-' + str(filter['size']))
+            )
+        elif filter['filter_type'] == 'DatePickerSingle':
+            layout.append(
+                html.Div(
+                    dcc.DatePickerSingle(
+                        id='date-picker',
+                    )
+                , className='column is-' + str(filter['size']))
+            )
+        # add query to base
+        base_query.append({
+            'type': filter['filter_type'],
+            'query': filter['query']
+        })
+        
+    # fake output
+    layout.append(html.Div(id='output-date-picker'))
+    return html.Div(layout, className='columns'), base_query

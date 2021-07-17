@@ -4,6 +4,15 @@ schema = {
         "name": {"type": "string"},
         "host": {"type": "string"},
         "port": {"type": "number"},
+        "filters": {
+            "type": "array",
+            "properties": {
+                "filter_type": {"type": "string"}, #supports DatePickerRange, DatePickerSingle
+                "options": {"type": "object"}, # dynamic options set, in case of datetime it allows - https://dash.plotly.com/dash-core-components/datepickersingle
+                "query": {"type": "string"}, # for datetime, use "{start}" and "{end}"
+                "size": {"type": "number"}, # columns flexbox
+            }
+        },
         "graphs": {
             "type": "array",
             "properties": {
