@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "grapp.fullname" . }}
+  labels:
+{{ include "grapp.labels" . | indent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.image.containerPort }}
+  selector:
+    app.kubernetes.io/name: {{ include "grapp.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

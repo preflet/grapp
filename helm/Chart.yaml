@@ -1,0 +1,7 @@
+appVersion: 2021.0.0
+description: A Helm chart for Grapp
+maintainers:
+- email: hello@preflet.com
+  name: Preflet
+name: grapp
+version: "1.0"
