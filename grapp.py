@@ -123,7 +123,8 @@ class Grapp:
                                 values=r['values'], 
                                 title=query['output']['title'],
                                 size=query['size'],
-                                colors=_colors
+                                colors=_colors,
+                                color_discrete_map=query['output']['color_discrete_map']
                             )
                         )
                     elif query['output']['type'] == 'barchart':
@@ -147,7 +148,8 @@ class Grapp:
                                 values=r['values'],
                                 parents=r['parents'],
                                 title=query['output']['title'],
-                                size=query['size']
+                                size=query['size'],
+                                color_discrete_map=query['output']['color_discrete_map']
                             )
                         )
                     elif query['output']['type'] == 'horizontal-barchart':
@@ -161,7 +163,8 @@ class Grapp:
                                 size=query['size'],
                                 x_axis_label = query['output']['x_axis_label'],
                                 y_axis_label = query['output']['y_axis_label'],
-                                color_label = query['output']['color']
+                                color_label = query['output']['color'],
+                                color_discrete_map=query['output']['color_discrete_map']
                             )
                         )
                     elif query['output']['type'] == 'bubblechart':
@@ -175,7 +178,8 @@ class Grapp:
                                 size=query['size'],
                                 x_axis_label = query['output']['x_axis_label'],
                                 y_axis_label = query['output']['y_axis_label'],
-                                bubble_label = query['output']['bubbles']
+                                bubble_label = query['output']['bubbles'],
+                                color_discrete_map=query['output']['color_discrete_map']
                             )
                         )
                 self.layout[graph['route']] = html.Div(

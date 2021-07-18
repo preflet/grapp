@@ -9,6 +9,7 @@ plot_colors = {
     'background-color': 'rgb(244, 244, 244)'
 }
 
+
 def wrap_layout(graph_data):
     routes = []
     for graph in graph_data:
@@ -66,10 +67,12 @@ def create_indicator(title='-', value='-', info='', size=4):
         ], className='card', style={'background-color': 'rgb(15, 70, 145)'})    
     , className='column is-' + str(size))
 
-def create_piechart(labels=[], values=[], title='', size=6, colors=[]):
+def create_piechart(labels=[], values=[], title='', size=6, colors=[],color_discrete_map={}):
+    print(color_discrete_map)
     figure = px.pie({'value': values,'label':labels}, 
         values='value',
         names='label',
+        color_discrete_map=color_discrete_map
     )
     figure.update_layout(
         plot_bgcolor=plot_colors['background-color'],
@@ -80,7 +83,7 @@ def create_piechart(labels=[], values=[], title='', size=6, colors=[]):
         textinfo='value',
         textfont_size=20,
         # paper_bgcolor='rgb(244, 244, 244)',
-        marker=dict(colors=colors, line=dict(color='#000000', width=2))
+        marker=dict(colors=colors)
     )
     return html.Div(
         html.Div([
@@ -106,7 +109,7 @@ def create_barchart(labels=[], values=[], title='', size=6, x_axis_label='', y_a
         paper_bgcolor=plot_colors['background-color']
     )
     figure.update_traces(
-        marker=dict(color=colors, line=dict(color='#000000', width=2))
+        marker=dict(color=colors)
     )
     return html.Div(
         html.Div([
@@ -123,12 +126,14 @@ def create_barchart(labels=[], values=[], title='', size=6, x_axis_label='', y_a
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_treechart(labels=[],values=[],parents=[],title='',size=6):
+def create_treechart(labels=[],values=[],parents=[],title='',size=6,color_discrete_map={}):
     figure = go.Figure(go.Treemap(
         labels = labels,
         values = values,
         parents = parents,
-        root_color="lightblue"
+        root_color="rgb(244, 244, 244)",
+        marker=dict(
+            colors=['#0066CC', '#D35C59',  '#FCB454', '#61DBA7','#02124F','#CA3A38','#D77C04','#1A764E','#D4EEFF'])
     ))
     figure.update_layout(
         plot_bgcolor=plot_colors['background-color'],
@@ -149,14 +154,15 @@ def create_treechart(labels=[],values=[],parents=[],title='',size=6):
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_horizontal_barchart(x_axis=[],y_axis=[],color=[],title='',size='',x_axis_label='',y_axis_label='',color_label=''):
+def create_horizontal_barchart(x_axis=[],y_axis=[],color=[],title='',size='',x_axis_label='',y_axis_label='',color_label='',color_discrete_map={}):
     figure = px.bar(  { y_axis_label: y_axis,
                         x_axis_label: x_axis,
                         color_label: color }, 
                         x=x_axis_label, 
                         y=y_axis_label,
                         color=color_label,
-                        barmode="stack"
+                        barmode="stack",
+                        color_discrete_map=color_discrete_map
                     )
     figure.update_layout(
         plot_bgcolor=plot_colors['background-color'],
@@ -177,7 +183,7 @@ def create_horizontal_barchart(x_axis=[],y_axis=[],color=[],title='',size='',x_a
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_bubblechart(x_axis=[],y_axis=[],bubbles=[],title='',size='',x_axis_label='',y_axis_label='',bubble_label=''):
+def create_bubblechart(x_axis=[],y_axis=[],bubbles=[],title='',size='',x_axis_label='',y_axis_label='',bubble_label='',color_discrete_map={}):
     figure = px.scatter(  { y_axis_label: y_axis,
                         x_axis_label: x_axis,
                         bubble_label: bubbles }, 
@@ -187,7 +193,8 @@ def create_bubblechart(x_axis=[],y_axis=[],bubbles=[],title='',size='',x_axis_la
                         color=bubble_label,
                         hover_name=bubble_label,
                         log_x=True, 
-                        size_max=60
+                        size_max=60,
+                        color_discrete_map=color_discrete_map
                     )
     figure.update_layout(
         plot_bgcolor=plot_colors['background-color'],
