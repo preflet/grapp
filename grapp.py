@@ -195,6 +195,8 @@ class Grapp:
                                 x_axis_label = query['output']['x_axis_label'],
                                 y_axis_label = query['output']['y_axis_label'],
                                 bubble_label = query['output']['bubbles']
+                            )
+                        )
                     elif query['output']['type'] == 'map-scatter-plot':
                         print('dfdfd')
                         r = preprocess.map(result[graph['queries'].index(query)],query)
