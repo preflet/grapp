@@ -20,6 +20,7 @@ class Mongo:
 
     def __init__(self, credentials, queries=[]):
         self.uri_name = getenv(credentials['uri']) if credentials['secure'] else credentials['uri']
+        print(self.uri_name)
         self.pipelines = queries
         val = next((item for item in self.connection if item["uri"] == self.uri_name),
                    False) if self.connection else False
