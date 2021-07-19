@@ -5,11 +5,11 @@
 replicaCount: 1
 app: grapp
 image:
-  repository: github.com/preflet/grapp
+  repository: preflet/grapp
   tag: latest
   pullPolicy: Always
   containerPort: 8000
-imagePullSecrets: docker-secrets
+imagePullSecrets: docker-registry
 nameOverride: ""
 fullnameOverride: ""
 service:
