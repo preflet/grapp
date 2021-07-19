@@ -92,7 +92,7 @@ class Grapp:
                 )
                 
                 lastupdated = dash_layouts.create_lastupdated(
-                    title="Última actualização às agora mesmo"
+                    title="Última actualização em 1 de junio de 2021"
                 )
                 design = []
 
@@ -239,7 +239,8 @@ class Grapp:
                                 size=query['size'],
                                 x_axis_label = query['output']['x_axis_label'],
                                 y_axis_label = query['output']['y_axis_label'],
-                                color_label = query['output']['color_label']
+                                color_label = query['output']['color_label'],
+                                color_discrete_map = query['output']['color_discrete_map']
                             )
                         )
                     elif query['output']['type'] == 'areachart':
@@ -254,7 +255,8 @@ class Grapp:
                                 x_axis_label = query['output']['x_axis_label'],
                                 y_axis_label = query['output']['y_axis_label'],
                                 color_label = query['output']['color_label'],
-                                line_group = query['output']['line_group']
+                                line_group = query['output']['line_group'],
+                                color_discrete_map = query['output']['color_discrete_map']
                             )
                         )
                     elif query['output']['type'] == 'scatterchart':
@@ -267,13 +269,15 @@ class Grapp:
                                 size=query['size'],
                                 x_axis_label = query['output']['x_axis_label'],
                                 y_axis_label = query['output']['y_axis_label'],
-                                color_discrete_map=query['output']['color_discrete_map']
+                                fill = query['output']['fill'],
+                                fillcolor = query['output']['fillcolor'],
+                                line_color = query['output']['line_color']
                             )
                          )
-                    elif query['output']['type'] == 'horizontal-line-chart':
-                        r = preprocess.horizontal_line_chart(result[graph['queries'].index(query)],query)
+                    elif query['output']['type'] == 'single-line-chart':
+                        r = preprocess.single_line_chart(result[graph['queries'].index(query)],query)
                         design.append(
-                            dash_layouts.create_horizontal_line_chart(
+                            dash_layouts.create_single_line_chart(
                                 x_axis=r['x_axis'],
                                 y_axis=r['y_axis'],
                                 x_axis_label = query['output']['x_axis_label'],

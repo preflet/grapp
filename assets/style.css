@@ -11,3 +11,9 @@
     min-width: 50%;
   }
 }
+
+.navbar-item img {
+  max-height: none;
+  width: 200px;
+}
+

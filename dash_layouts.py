@@ -8,11 +8,11 @@ from datetime import datetime
 from dash_leaflet.express import dicts_to_geojson
 from dash_extensions.javascript import assign
 
+_colors = ["#02124F","#CA3A38","#D77C04","#1A764E"]
 global_graph_config = {"displayModeBar":False,"displaylogo":False,"modeBarButtonsToRemove":["*"],"scrollZoom":False,"showAxisRangeEntryBoxes":False,"showAxisDragHandles":False,"style":{"background-color": "coral"}  }
 plot_colors = {
     'background-color': 'rgb(244, 244, 244)'
 }
-_colors = ["#02124F","#CA3A38","#D77C04","#1A764E"]
 
 def wrap_layout(graph_data):
     routes = []
@@ -27,32 +27,15 @@ def wrap_layout(graph_data):
         ], className='navbar-item has-dropdown is-hoverable')
     else:
         navigation = ''
-    layout = html.Div([
+        layout = html.Div([
         html.Font(style={"face": "nunito-sans, sans-serif"}),
         dcc.Location(id='url', refresh=False),
-         html.A([
-                    html.Img(src='./assets/ena_logo_2.png',style={"width":"90px","height":"70px"}),
-                ], className='navbar-item', href="https://preflet.com", target="_blank",style={"display": "block","width":"100px","height":"80px"}),
-        html.Nav([
-            html.Div([
-                html.A([
-                    html.Span(hidden='true'),
-                    html.Span(hidden='true'),
-                    html.Span(hidden='true')
-                ], className='navbar-burger')
-            ], className='navbar-brand'),
-            html.Div([
-                html.Div([
-                    navigation
-                ], className='navbar-start')
-            ], className='navbar-menu', id='grapp-nav')
-        ], 
-        className='navbar',
-        role="navigation",
-        ),
+        html.A([
+                    html.Img(src='./assets/ena_logo_2.png'),
+                ], className='navbar-item', href="https://preflet.com", target="_blank"),
         html.Div(id='page-content'),
-        
     ])
+
     return layout
 
 def create_header(title, description=''):
@@ -74,7 +57,7 @@ def create_indicator(title='-', value='-', info='', size=4):
     return html.Div(
         html.Div([
             html.Div(
-                html.H1(value, className='title has-text-white', style={'white-space': 'nowrap','font-weight': 'bold','text-align': 'center','transform': 'scaleY(1.8)','transform': 'scaleX(1.5)'})
+                html.H1(value, className='title has-text-white', style={'white-space': 'nowrap','font-weight': 'bold','text-align': 'center'})
             , className='card-content'),
             html.P(title, className='has-text-white', style={'text-align':'center'}) 
         ], className='card', style={'background-color': 'rgb(15, 70, 145)'})
@@ -321,9 +304,12 @@ def create_areachart(x_axis=[],y_axis=[],colors=[],title='',size='',x_axis_label
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_scatterchart(x_axis=[],y_axis=[],title='',size='',x_axis_label='',y_axis_label='',color_discrete_map={}):
-    figure = go.Figure(go.Figure(go.Scatter(x=x_axis, y=y_axis, fill='tozeroy',
-                    mode='none'
+def create_scatterchart(x_axis=[],y_axis=[],title='',size='',x_axis_label='',y_axis_label='',fill='',fillcolor='',line_color=''):
+    figure = go.Figure((go.Scatter(x=x_axis, 
+                                    y=y_axis,
+                                    fill=fill, 
+                                    fillcolor=fillcolor,
+                                    line_color=line_color
                     )))
     figure.update_layout(
         plot_bgcolor=plot_colors['background-color'],
@@ -344,7 +330,7 @@ def create_scatterchart(x_axis=[],y_axis=[],title='',size='',x_axis_label='',y_a
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_horizontal_line_chart(x_axis=[],y_axis=[],title='',size='',x_axis_label='',y_axis_label='',color_discrete_map={}):
+def create_single_line_chart(x_axis=[],y_axis=[],title='',size='',x_axis_label='',y_axis_label='',color_discrete_map={}):
     figure = px.line({x_axis_label:x_axis,y_axis_label:y_axis }, x=x_axis_label, y=y_axis_label, title=title)
     figure.update_layout(
         plot_bgcolor=plot_colors['background-color'],

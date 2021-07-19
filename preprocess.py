@@ -125,7 +125,7 @@ def scatterchart(val,_input):
         'y_axis': y_axis
     }
 
-def horizontal_line_chart(val,_input):
+def single_line_chart(val,_input):
     x_axis=[]
     y_axis=[]
     
