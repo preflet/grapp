@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=off \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100 \
-    POETRY_VERSION=1.0.5 \
+    POETRY_VERSION=1.1.13 \
     POETRY_HOME="/opt/poetry" \
     POETRY_VIRTUALENVS_IN_PROJECT=true \
     POETRY_NO_INTERACTION=1 \
@@ -35,10 +35,6 @@ WORKDIR $PYSETUP_PATH
 COPY poetry.lock pyproject.toml ./
 RUN poetry install --no-dev
 
-# App name
-ARG APP_NAME
-ENV APP_NAME=$APP_NAME
-
 COPY ./ $PYSETUP_PATH
 
 ###############################################
@@ -47,8 +43,8 @@ COPY ./ $PYSETUP_PATH
 FROM python-base as production
 COPY --from=builder-base $PYSETUP_PATH $PYSETUP_PATH
 
-WORKDIR /src/
+WORKDIR $PYSETUP_PATH
 
 EXPOSE $GRAPP_PORT
 
-CMD ["python", ]
+CMD ["sh", "-c", "python $GRAPP_PY_FILE"]
