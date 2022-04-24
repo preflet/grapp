@@ -3,6 +3,7 @@ import plotly.graph_objs as go
 import plotly.express as px
 import pandas as pd
 import numpy as np
+import calendar
 
 from plotly.subplots import make_subplots
 from millify import millify
@@ -14,8 +15,13 @@ def indicator(val):
     return '-'
 
 def piechart(val, _input):
+    print(val)
+    print("---------------------")
+    print(_input)
     labels = []
     values = []
+    if(isinstance(val,dict)):
+        val = [val]
     for v in val:
         labels.append(v[_input['output']['labels']])
         values.append(v[_input['output']['values']])
@@ -27,6 +33,12 @@ def piechart(val, _input):
 def barchart(val, _input):
     labels = []
     values = []
+    print("---BAR---")
+    print(val)
+    print(_input)
+    print("------")
+    if(isinstance(val,dict)):
+        val = [val]
     for v in val:
         print(v)
         labels.append(v[_input['output']['labels']])
@@ -35,6 +47,24 @@ def barchart(val, _input):
         'labels': labels,
         'values': values
     }
+
+def clustered_barchart(val,_input):
+    labels = []
+    values = []
+
+    if(isinstance(val,dict)):
+        val = [val]
+    # for chk in range(len(val)):
+    #     if 'Month' in val[chk] and val[chk]['Month'] not in ["",None]:
+    #         val[chk]['Month'] = calendar.month_name[val[chk]['Month']]
+
+    # for v in val:
+    #     print(v)
+    #     labels.append(v[_input['output']['labels']])
+    #     values.append(v[_input['output']['values']])
+    return {
+        'data': val,
+    }    
 
 def treechart(val, _input):
     labels = []
@@ -54,6 +84,13 @@ def horizontal_barchart(val, _input):
     x_axis = []
     y_axis = []
     color = []
+    # print("________")
+    # print(val)
+    # print(_input)
+    # print("________")
+
+    if(isinstance(val,dict)):
+        val = [val]
     for v in val:
         x_axis.append(v[_input['output']['x_axis_label']])
         y_axis.append(v[_input['output']['y_axis_label']])

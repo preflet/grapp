@@ -1,3 +1,9 @@
 .git
 build
 helm
+dist
+__pycache__
+documentation
+helm
+content
+.github
