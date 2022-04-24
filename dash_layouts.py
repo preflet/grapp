@@ -128,6 +128,32 @@ def create_barchart(labels=[], values=[], title='', size=6, x_axis_label='', y_a
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
+def create_clustered_barchart(data=[], title='', size=6, x_axis_label='', y_axis_label='', colors=[],color=''):
+    figure = px.bar(data,
+       x=x_axis_label, y=y_axis_label,barmode='group',color=color
+    )
+    # figure.update_layout(
+    #     plot_bgcolor=plot_colors['background-color'],
+    #     paper_bgcolor=plot_colors['background-color']
+    # )
+    # figure.update_traces(
+    #     marker=dict(color=colors, line=dict(color='#000000', width=2))
+    # )
+    return html.Div(
+        html.Div([
+            html.Div(
+                html.Div([
+                    html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
+                    dcc.Graph(
+                        id='clustered-bar-chart-' + str(title).replace(' ', '-'),
+                        figure=figure,
+                        config=global_graph_config
+                    ),
+                ], className='content',),
+            className='card-content'),
+        ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
+    , className='column is-' + str(size))
+
 def create_treechart(labels=[],values=[],parents=[],title='',size=6, colors=[]):
     figure = go.Figure(go.Treemap(
         labels = labels,

@@ -207,6 +207,20 @@ class Grapp:
                                 data=r
                             )
                         )
+                    elif query['output']['type'] == 'clustered-barchart':
+                        r = preprocess.clustered_barchart(result[graph['queries'].index(query)],query)
+                        design.append(
+                            dash_layouts.create_clustered_barchart(
+                                data=r['data'],
+                                title=query['output']['title'],
+                                x_axis_label=query['output']['x_axis_label'],
+                                y_axis_label=query['output']['y_axis_label'],
+                                color=query['output']['color'],
+                                size=query['size'],
+                                colors=_colors
+                            )
+                        )
+
                 self.layout[graph['route']] = html.Div(
                     html.Div([
                         header,
