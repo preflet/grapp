@@ -26,6 +26,8 @@ from datetime import datetime
 from schema import schema
 from webbrowser import open as browser
 from os import path, getcwd
+import charts
+
 
 grapp_server = FastAPI()
 
@@ -35,7 +37,7 @@ styles = [
 ]
 
 scripts = [
-   'https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js' 
+   'https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js'
 ]
 
 @grapp_server.get("/health")
@@ -86,26 +88,26 @@ class Grapp:
                 credentials = graph['db']['credentials']
 
                 # create app header
-                header = dash_layouts.create_header(
-                    graph['name'],
-                    graph['description'] if 'description' in graph else ''
-                )
+                # header = dash_layouts.create_header(
+                #     graph['name'],
+                #     graph['description'] if 'description' in graph else ''
+                # )
                 
-                lastupdated = dash_layouts.create_lastupdated(
-                    title="Última actualização em 1 de junio de 2021"
-                )
+                # lastupdated = dash_layouts.create_lastupdated(
+                #     title="Última actualização em 1 de junio de 2021"
+                # )
                 design = []
 
                 # run all queries
-                pipeline = {}
-                for q in graph['queries']:
-                    if q['input']['type'] != 'raw':
-                        print("INDEX : "+str(graph['queries'].index(q)))
-                        pipeline[graph['queries'].index(q)] = q['input']
-                result = db_types[db_type](
-                    credentials, [p for p in list(pipeline.values()) if p]
-                )
-                print(result)
+                # pipeline = {}
+                # for q in graph['queries']:
+                #     if q['input']['type'] != 'raw':
+                #         print("INDEX : "+str(graph['queries'].index(q)))
+                #         pipeline[graph['queries'].index(q)] = q['input']
+                # result = db_types[db_type](
+                #     credentials, [p for p in list(pipeline.values()) if p]
+                # )
+                # print(result)
 
                 # generate graph
                 for query in graph['queries']:
@@ -116,180 +118,140 @@ class Grapp:
                         r = query['input']['value']
                     # start graph generation
                     if query['output']['type'] == 'indicator':
-                        r = preprocess.indicator(result[graph['queries'].index(query)])
+                        # r = preprocess.indicator(result[graph['queries'].index(query)])
                         design.append(
                             dash_layouts.create_indicator(
-                                value=r,
                                 title=query['output']['title'],
-                                size=query['size']
+                                size=query['size'],
+                                id = query['output']['id']
                             )
                         )
                     elif query['output']['type'] == 'piechart':
-                        r = preprocess.piechart(result[graph['queries'].index(query)], query)
+                        # r = preprocess.piechart(result[graph['queries'].index(query)], query)
                         design.append(
                             dash_layouts.create_piechart(
-                                labels=r['labels'],
-                                values=r['values'], 
                                 title=query['output']['title'],
                                 size=query['size'],
-                                color_discrete_map=query['output']['color_discrete_map'],
-
+                                id = query['output']['id']
                             )
                         )
                     elif query['output']['type'] == 'donut':
-                        r = preprocess.piechart(result[graph['queries'].index(query)], query)
+                        # r = preprocess.piechart(result[graph['queries'].index(query)], query)
                         design.append(
                             dash_layouts.create_piechart(
-                                labels=r['labels'],
-                                values=r['values'], 
                                 title=query['output']['title'],
                                 size=query['size'],
-                                colors=_colors,
-                                hole=0.5,
-                                color_discrete_map=query['output']['color_discrete_map']
+                                id = query['output']['id']
                             )
                         )
                     elif query['output']['type'] == 'barchart':
-                        r = preprocess.barchart(result[graph['queries'].index(query)],query)
+                        # r = preprocess.barchart(result[graph['queries'].index(query)],query)
                         design.append(
                             dash_layouts.create_barchart(
-                                labels=r['labels'],
-                                values=r['values'],
                                 title=query['output']['title'],
-                                x_axis_label=query['output']['x_axis_label'],
-                                y_axis_label=query['output']['y_axis_label'],
                                 size=query['size'],
-                                color_discrete_map=query['output']['color_discrete_map']
+                                id = query['output']['id']
+                            )
+                        )
+                    elif query['output']['type'] == 'clustered-barchart':
+                        # r = preprocess.barchart(result[graph['queries'].index(query)],query)
+                        design.append(
+                            dash_layouts.create_clustered_barchart(
+                                title=query['output']['title'],
+                                size=query['size'],
+                                id = query['output']['id']
                             )
                         )
                     elif query['output']['type'] == 'treechart':
-                        r = preprocess.treechart(result[graph['queries'].index(query)],query)
+                        # r = preprocess.treechart(result[graph['queries'].index(query)],query)
                         design.append(
                             dash_layouts.create_treechart(
-                                labels=r['labels'],
-                                values=r['values'],
-                                parents=r['parents'],
                                 title=query['output']['title'],
                                 size=query['size'],
-                                color_discrete_map=query['output']['color_discrete_map']
+                                id = query['output']['id']
                             )
                         )
                     elif query['output']['type'] == 'horizontal-barchart':
-                        r = preprocess.horizontal_barchart(result[graph['queries'].index(query)],query)
+                        # r = preprocess.horizontal_barchart(result[graph['queries'].index(query)],query)
                         design.append(
                             dash_layouts.create_horizontal_barchart(
-                                x_axis=r['x_axis'],
-                                y_axis=r['y_axis'],
-                                color=r['color'],
                                 title=query['output']['title'],
                                 size=query['size'],
-                                x_axis_label = query['output']['x_axis_label'],
-                                y_axis_label = query['output']['y_axis_label'],
-                                color_label = query['output']['color'],
-                                color_discrete_map=query['output']['color_discrete_map']
+                                id = query['output']['id']
                             )
                         )
                     elif query['output']['type'] == 'bubblechart':
-                        r = preprocess.bubblechart(result[graph['queries'].index(query)],query)
+                        # r = preprocess.bubblechart(result[graph['queries'].index(query)],query)
                         design.append(
                             dash_layouts.create_bubblechart(
-                                x_axis=r['x_axis'],
-                                y_axis=r['y_axis'],
-                                bubbles = r['bubbles'],
                                 title=query['output']['title'],
-                                size=query['size'],
-                                x_axis_label = query['output']['x_axis_label'],
-                                y_axis_label = query['output']['y_axis_label'],
-                                bubble_label = query['output']['bubbles'],
-                                color_discrete_map=query['output']['color_discrete_map']
+                                id = query['output']['id'],
+                                size=query['size']
                             )
                         )
                     elif query['output']['type'] == 'bubblechart':
-                        r = preprocess.bubblechart(result[graph['queries'].index(query)],query)
+                        # r = preprocess.bubblechart(result[graph['queries'].index(query)],query)
                         design.append(
                             dash_layouts.create_bubblechart(
-                                x_axis=r['x_axis'],
-                                y_axis=r['y_axis'],
-                                bubbles = r['bubbles'],
                                 title=query['output']['title'],
-                                size=query['size'],
-                                x_axis_label = query['output']['x_axis_label'],
-                                y_axis_label = query['output']['y_axis_label'],
-                                bubble_label = query['output']['bubbles']
+                                id = query['output']['id'],
+                                size=query['size']
                             )
                         )
                     elif query['output']['type'] == 'map-scatter-plot':
                         print('dfdfd')
-                        r = preprocess.map(result[graph['queries'].index(query)],query)
+                        # r = preprocess.map(result[graph['queries'].index(query)],query)
                         design.append(
                             dash_layouts.create_map(
                                 title=query['output']['title'],
-                                size=query['size'],
-                                data=r
+                                id = query['output']['id'],
+                                size=query['size']
                             )
                         )
                     elif query['output']['type'] == 'linechart':
-                        r = preprocess.linechart(result[graph['queries'].index(query)],query)
+                        # r = preprocess.linechart(result[graph['queries'].index(query)],query)
                         design.append(
                             dash_layouts.create_linechart(
-                                x_axis=r['x_axis'],
-                                y_axis=r['y_axis'],
-                                colors = r['colors'],
                                 title=query['output']['title'],
-                                size=query['size'],
-                                x_axis_label = query['output']['x_axis_label'],
-                                y_axis_label = query['output']['y_axis_label'],
-                                color_label = query['output']['color_label'],
-                                color_discrete_map = query['output']['color_discrete_map']
+                                id = query['output']['id'],
+                                size=query['size']
                             )
                         )
                     elif query['output']['type'] == 'areachart':
-                        r = preprocess.areachart(result[graph['queries'].index(query)],query)
+                        # r = preprocess.areachart(result[graph['queries'].index(query)],query)
+                        # print("RRRRRRRR"+str(r))
                         design.append(
                             dash_layouts.create_areachart(
-                                x_axis=r['x_axis'],
-                                y_axis=r['y_axis'],
-                                colors = r['colors'],
                                 title=query['output']['title'],
                                 size=query['size'],
-                                x_axis_label = query['output']['x_axis_label'],
-                                y_axis_label = query['output']['y_axis_label'],
-                                color_label = query['output']['color_label'],
-                                line_group = query['output']['line_group'],
-                                color_discrete_map = query['output']['color_discrete_map']
+                                id = query['output']['id']
                             )
                         )
                     elif query['output']['type'] == 'scatterchart':
-                        r = preprocess.scatterchart(result[graph['queries'].index(query)],query)
+                        # r = preprocess.scatterchart(result[graph['queries'].index(query)],query)
                         design.append(
                             dash_layouts.create_scatterchart(
-                                x_axis=r['x_axis'],
-                                y_axis=r['y_axis'],
                                 title=query['output']['title'],
                                 size=query['size'],
-                                x_axis_label = query['output']['x_axis_label'],
-                                y_axis_label = query['output']['y_axis_label'],
-                                fill = query['output']['fill'],
-                                fillcolor = query['output']['fillcolor'],
-                                line_color = query['output']['line_color']
+                                id = query['output']['id']
                             )
                          )
                     elif query['output']['type'] == 'single-line-chart':
-                        r = preprocess.single_line_chart(result[graph['queries'].index(query)],query)
+                        # r = preprocess.single_line_chart(result[graph['queries'].index(query)],query)
                         design.append(
                             dash_layouts.create_single_line_chart(
-                                x_axis=r['x_axis'],
-                                y_axis=r['y_axis'],
-                                x_axis_label = query['output']['x_axis_label'],
-                                y_axis_label = query['output']['y_axis_label'],
                                 size=query['size'],
-                                title=query['output']['title']
+                                title=query['output']['title'],
+                                id = query['output']['id']
                             )
                         )
+                
+                design.insert(4,dash_layouts.create_lastupdated(
+                    title=""
+                    # title="Última actualização em 1 de Junho de 2021"
+                ))
                 self.layout[graph['route']] = html.Div(
                     html.Div([
-                        header,
-                        lastupdated,
                         html.Div(design, className="columns is-multiline"),
                     ], className="container")
                 )
@@ -300,22 +262,79 @@ class Grapp:
         @app.callback(dash.dependencies.Output('page-content', 'children'),
                       [dash.dependencies.Input('url', 'pathname')])
         def construct_layout(pathname):
+            
             if pathname in self.layout:
                 return self.layout[pathname]
             else:
                 # render first graph always
                 return self.layout[list(self.layout.keys())[0]]
 
-        @self.cache()
-        def cached_time():
-            return f'Current time is{datetime.now().strftime("%H:%M:%S")}'
+        # @self.cache()
+        # def cached_time():
+        #     return f'Current time is{datetime.now().strftime("%H:%M:%S")}'
 
+        # @app.callback(
+        #     Output('cache_text', 'children'),
+        #     Input('interval-component', 'n_intervals'))
+        # def render(value):
+        #     return cached_time()
+
+        # @app.callback(
+        #     Output('logo','style'),
+        #     [Input('muni-dropdown','value')]
+        # )
+        # def func(val):
+        #     return {'display': 'none'}
+        
         @app.callback(
-            Output('cache_text', 'children'),
-            Input('interval-component', 'n_intervals'))
-        def render(value):
-            return cached_time()
+            Output('indi_1', 'children'),
+            Output('indi_2', 'children'),
+            Output('indi_3', 'children'),
+            Output('indi_4', 'children'),
+            # Output('single-line-chart','figure'),
+            Output('donut-chart','figure'),
+            Output('treechart_tipo_de_edifício','figure'),
+            Output('clustered_bar_chart_fatura','figure'),
+            Output('horizontal_barchart_sazonalidade_por_local','figure'),
+            Output('barchart_tempordas','figure'),
+            # Output('scatterchart_sazonalidade_por_pavilhão','figure'),
+            Output('bubblechart_sazonalidade_por_edificio','figure'),
+            # Output('linechart_padrão_por_hora_por_tipo_de_edifício','figure'),
+            # Output('areachart_comparação_semanal','figure'),
+            # Output('piechart_padrão_do_fim_de_semana','figure'),
+            Output('geojson','data'),
+            [Input('date-range', 'start_date'),Input('date-range', 'end_date')],
+            # [Input('muni-dropdown','value')],
+            [Input('tepo-dropdown','value')])
+        def filters(start_date,end_date,tepo):
+            filter = charts.create_filter(start_date,end_date,tepo)
+            indi_1 = str(charts.indicator_total(filter))
+            indi_2 = str(charts.indicator_fatura(filter))
+            indi_3 = str(charts.indicator_numero_de_edificios(filter))
+            indi_4 = str(charts.indicator_tipo_de_edifícios(filter))
+            # single_line_chart = charts.single_line_chart(filter)
+            donut_chart = charts.donut_chart(filter)
+            treechart_tipo_de_edifício = charts.treechart_tipo_de_edifício(filter)
+            clustered_bar_chart_fatura = charts.clustered_bar_chart_fatura(filter)
+            horizontal_barchart_sazonalidade_por_local = charts.horizontal_barchart_sazonalidade_por_local(filter)
+            barchart_tempordas = charts.barchart_tempordas(filter)
+            bubblechart_sazonalidade_por_edificio = charts.bubblechart_sazonalidade_por_edificio(filter)
+            # linechart_padrão_por_hora_por_tipo_de_edifício = charts.linechart_padrão_por_hora_por_tipo_de_edifício(filter)
+            # areachart_comparação_semanal = charts.areachart_comparação_semanal(filter)
+            # piechart_padrão_do_fim_de_semana = charts.piechart_padrão_do_fim_de_semana(filter)
+            geomap = charts.geomap(filter)
 
+            return indi_1,indi_2,indi_3,indi_4,\
+                    donut_chart,treechart_tipo_de_edifício,\
+                    clustered_bar_chart_fatura,horizontal_barchart_sazonalidade_por_local,barchart_tempordas,\
+                    bubblechart_sazonalidade_por_edificio,\
+                    geomap
+            # ,single_line_chart,donut_chart,treechart_tipo_de_edifício,\
+            #     horizontal_barchart_sazonalidade_por_municipio,scatterchart_sazonalidade_por_pavilhão,\
+            #     bubblechart_sazonalidade_por_edificio,linechart_padrão_por_hora_por_tipo_de_edifício,\
+            #     areachart_comparação_semanal,piechart_padrão_do_fim_de_semana,geomap
+            
+        
     def start(self, dash_path="/", static_path="/static", static_directory="static"):
         grapp_server.mount(dash_path, WSGIMiddleware(self.app.server))
         grapp_server.mount(static_path, StaticFiles(

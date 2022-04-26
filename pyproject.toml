@@ -11,7 +11,6 @@ pandas = "^1.2.3"
 matplotlib = "^3.3.4"
 pre-commit = "^2.11.1"
 motor = "^2.3.1"
-dash = "^1.19.0"
 squarify = "^0.4.3"
 uvicorn = {extras = ["logging"], version = "^0.14.0"}
 fastapi = "^0.63.0"
@@ -31,6 +30,8 @@ tornado = "^6.1"
 dash-leaflet = "^0.1.16"
 dash-extensions = "^0.0.58"
 jsbeautifier = "^1.14.0"
+Werkzeug = "^2.1.1"
+dash = "^2.3.1"
 
 [tool.poetry.dev-dependencies]
 pyinstaller = "^4.4"
