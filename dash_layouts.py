@@ -52,7 +52,7 @@ def wrap_layout(graph_data):
                             )
                         ],className='',style={"display": "flex","justify-content": "center"}),
                     ],className='card'),
-            className='column is-4'),
+            className='column is-6'),
 
             # html.Div(
             #     html.Div([
@@ -99,7 +99,7 @@ def wrap_layout(graph_data):
                             )
                     ],className='card-content'),
                 ],className='card'),
-            className='column is-4' ),
+            className='column is-6' ),
         ], className='columns' ,style={ "margin-top": "3rem"}),
             html.Div(id='page-content')
         ])
