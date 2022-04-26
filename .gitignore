@@ -27,3 +27,5 @@ test-*.py
 *.spec
 build/
 build.md
+!test-maia.py
+!test-maia.json

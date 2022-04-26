@@ -1,0 +1,239 @@
+{
+    "name": "Maia Barometer",
+    "host": "0.0.0.0",
+    "port": 8000,
+    "graphs": [
+        {
+            "route": "/maia",
+            "name": "",
+            "description": "",
+            "db": {
+                "type": "mongo",
+                "credentials": {
+                  "secure": false,
+                  "uri": "uri_name",
+                  "name": "maia"
+                }
+            },
+            "queries": [
+                {
+                    "input": {
+                        "value": "[{'$group':{'_id': 'null', 'count': {'$sum': {'$toDouble': '$Consumo' }}}}]",
+                        "source": "MAIA",
+                        "type": "aggregate"
+                    },
+                    "output": {
+                        "type": "indicator",
+                        "title": "Total (kW)",
+                        "id": "indi_1"
+                    },
+                    "size": "3"
+                },
+                {
+                    "input": {
+                        "value": "[{'$group':{'_id': null, 'count':{'$sum': {'$toDouble': '$Fatura' }}}}]",
+                        "source": "MAIA",
+                        "type": "aggregate"
+                        
+                    },
+                    "output": {
+                        "type": "indicator",
+                        "title": "Fatura (€)",
+                        "id": "indi_2"
+                    },
+                    "size": "3"
+                },
+                {
+                    "input": {
+                        "value": "[{'$group':{'_id': null, 'count':{'$addToSet': '$ID'}}}]",
+                        "source": "MAIA",
+                        "type": "aggregate"
+                    },
+                    "output": {
+                        "type": "indicator",
+                        "title": "Número de Edifício",
+                        "id": "indi_3"
+                    },
+                    "size": "3"
+                },
+                {
+                    "input": {
+                        "value": "[{'$group':{'_id': null, 'count':{'$addToSet': '$TIPO_DE_EDIFICIO'}}}]",
+                        "source": "MAIA",
+                        "type": "aggregate"
+                    },
+                    "output": {
+                        "type": "indicator",
+                        "title": "Tipo de edifícios",
+                        "id": "indi_4"
+                    },
+                    "size": "3"
+                },
+                {
+                    "input": {
+                        "value": "[{'$group':{'_id': {'LONGITUDE': '$LONGITUDE', 'LATITUDE': '$LATITUDE'},'data':{'$first': '$LOCAL'}}},{'$project': {'lon': '$_id.LONGITUDE','lat':'$_id.LATITUDE','name': '$data','_id':0}}]",
+                        "source": "DATA",
+                        "type": "aggregate"
+                    },
+                    "output": {
+                        "type": "map-scatter-plot",
+                        "labels": "_id",
+                        "values": "count",
+                        "title": "Mapa de consumo dos local",
+                        "id":"geomap"
+                    },
+                    "size": "12"
+                },
+                {
+                    "input": {
+                        "value": "[{'$group':{'_id': '$LOCAL', 'count':{'$sum': 1}}}]",
+                        "source": "MAIA",
+                        "type": "aggregate"
+                    },
+                    "output": {
+                        "type": "donut",
+                        "labels": "_id",
+                        "values": "count",
+                        "title": "LOCAL",
+                        "color_discrete_map":{
+                            "NA":"#02124F"
+                        },
+                        "id":"donut-chart"
+
+
+                    },
+                    "size": "6"
+                },
+                {
+                    "input":{
+                        "value":"[{'$group':{'_id':'$TIPO_DE_EDIFICIO','count':{'$sum':1}}}]",
+                        "source":"MAIA",
+                        "type":"aggregate"
+                    },
+                    "output":{
+                        "type":"treechart",
+                        "labels":"_id",
+                        "values":"count",
+                        "title":"Tipo De edificios",
+                        "color_discrete_map":{
+                            "Escola Básica":"blue",
+                            "Edifícios": "red",
+                            "Biblioteca": "orange",
+                            "Centro Cultural": "green",
+                            "Pavilhão":"Light Green",
+                            "Mercado":"Soft Cyan",
+                            "Centro":"Cream Orange",
+                            "Paços do Concelho":"Pale Orange",
+                            "Outros":"Pale Blue"
+                        },
+                        "id":"treechart_tipo_de_edifício"
+                    },
+                    "size": "6"
+                },
+                {
+                    "input":{
+                        "value":"[ { '$group': { '_id': { 'month': { '$month': { '$dateFromString': { 'dateString': '$Date' } } }, 'year': { '$year': { '$dateFromString': { 'dateString': '$Date' } } } }, 'data': { '$sum': {'$toDouble':'$Fatura'} } } }, { '$project': { '_id':0, 'month':'$_id.month', 'year':{'$toString':'$_id.year'}, 'Fatura':'$data' } } ,{ '$project':{ 'Month':{ '$switch':{'branches':[ { 'case':{'$eq':['$month',1]}, 'then': 'January' }, { 'case':{'$eq':['$month',2]}, 'then': 'February' }, { 'case':{'$eq':['$month',3]}, 'then': 'March' }, { 'case':{'$eq':['$month',4]}, 'then': 'April' }, { 'case':{'$eq':['$month',5]}, 'then': 'May' }, { 'case':{'$eq':['$month',6]}, 'then': 'June' }, { 'case':{'$eq':['$month',7]}, 'then': 'July' }, { 'case':{'$eq':['$month',8]}, 'then': 'August' }, { 'case':{'$eq':['$month',9]}, 'then': 'September' }, { 'case':{'$eq':['$month',10]}, 'then': 'October' }, { 'case':{'$eq':['$month',11]}, 'then': 'November' }, { 'case':{'$eq':['$month',12]}, 'then': 'December' } ], 'default':'Undefined' } }, 'Year':'$year', 'Fatura':1 }} ]",
+                        "source":"MAIA",
+                        "type":"aggregate"
+                    },
+                    
+                    "output":{
+                        "type":"clustered-barchart",
+                        "labels":"Month",
+                        "values":"Fatura",
+                        "title":"Fatura",
+                        "x_axis_label":"Month",
+                        "y_axis_label":"Fatura",
+                        "color": "Year",
+                        "color_discrete_map":{
+                            "Winter":"#02124F",
+                            "Spring": "#CA3A38",
+                            "Summer": "#D77C04",
+                            "Antumn": "#1A764E"
+                        },
+                        "id":"clustered_bar_chart_fatura"
+
+                    },
+                    "size": "12"
+                },
+                {
+                    "input":{
+                        "value":"[{ '$group':{ '_id':{ 'month':{ '$month': {'$dateFromString':{'dateString':'$Date'}} } }, 'data':{ '$sum':1 } } }, { '$project':{ 'res':{ '$switch': { 'branches': [ { 'case': { '$in': [ '$_id.month',[12,1,2] ] }, 'then': 'Winter' }, { 'case': { '$in': [ '$_id.month', [3,4,5] ] }, 'then': 'Spring' }, { 'case': { '$in': [ '$_id.month',[6,7,8,9] ] }, 'then': 'Summer' }, { 'case': { '$in': [ '$_id.month',[10,11] ] }, 'then': 'Antumn' } ] } }, 'data':1 } },{ '$group':{ '_id':'$res', 'count':{ '$sum':'$data' } } }]",
+                        "source":"MAIA",
+                        "type":"aggregate"
+                    },
+                    
+                    "output":{
+                        "type":"horizontal-barchart",
+                        "labels":"_id",
+                        "values":"count",
+                        "title":"Sazonalidade por local",
+                        "x_axis_label":"Temporadas",
+                        "y_axis_label":"Contar",
+                        "color_discrete_map":{
+                            "Winter":"#02124F",
+                            "Spring": "#CA3A38",
+                            "Summer": "#D77C04",
+                            "Antumn": "#1A764E"
+                        },
+                        "id": "horizontal_barchart_sazonalidade_por_local"                      
+                    },
+                    "size": "6"
+                },
+                {
+                    "input":{
+                        "value":"[{ '$group':{ '_id':{ 'month':{ '$month': {'$dateFromString':{'dateString':'$Date'}} } }, 'data':{ '$sum':1 } } }, { '$project':{ 'res':{ '$switch': { 'branches': [ { 'case': { '$in': [ '$_id.month',[12,1,2] ] }, 'then': 'Winter' }, { 'case': { '$in': [ '$_id.month', [3,4,5] ] }, 'then': 'Spring' }, { 'case': { '$in': [ '$_id.month',[6,7,8,9] ] }, 'then': 'Summer' }, { 'case': { '$in': [ '$_id.month',[10,11] ] }, 'then': 'Antumn' } ] } }, 'data':1 } },{ '$group':{ '_id':'$res', 'count':{ '$sum':'$data' } } }]",
+                        "source":"MAIA",
+                        "type":"aggregate"
+                    },
+                    "output":{
+                        "type":"barchart",
+                        "labels":"_id",
+                        "values":"count",
+                        "title":"Temporadas",
+                        "x_axis_label":"Temporadas",
+                        "y_axis_label":"Contar",
+                        "color_discrete_map":{
+                            "Winter":"#02124F",
+                            "Spring": "#CA3A38",
+                            "Summer": "#D77C04",
+                            "Antumn": "#1A764E"
+                        },
+                        "id": "barchart_tempordas"
+                    },
+                    "size": "6"
+                },
+                {
+                    "input":{
+                        "value":"[ { '$group':{ '_id':{ 'month':{ '$month': {'$dateFromString':{'dateString':'$Date'}} }, 'tepo_de_edificio': '$TIPO_DE_EDIFICIO' }, 'data':{ '$sum':1 } } }, { '$project':{ 'res':{ '$switch': { 'branches': [ { 'case': { '$in': [ '$_id.month',[12,1,2] ] }, 'then': 'Winter' }, { 'case': { '$in': [ '$_id.month', [3,4,5] ] }, 'then': 'Spring' }, { 'case': { '$in': [ '$_id.month',[6,7,8,9] ] }, 'then': 'Summer' }, { 'case': { '$in': [ '$_id.month',[10,11] ] }, 'then': 'Antumn' } ] } }, 'data': 1 } }, { '$group':{ '_id': { 'tepo_de_edificio':'$_id.tepo_de_edificio', 'season': '$res' }, 'count':{ '$sum':'$data' } } }, { '$project': { 'TEPO DE EDIFICIO': '$_id.tepo_de_edificio', 'Temporadas':'$_id.season', 'Contar':'$count', '_id':0 } } ]",
+                        "source":"MAIA",
+                        "type":"aggregate"
+                    },
+                    "output":{
+                        "type":"bubblechart",
+                        "x_axis_label":"Contar",
+                        "y_axis_label":"Temporadas",
+                        "bubbles":"TEPO DE EDIFICIO",
+                        "hover_name":"TEPO DE EDIFICIO",
+                        "title":"Sazonalidade por edificio", 
+                        "color_discrete_map":{
+                            "Escola Básica":"#0066CC",
+                            "Edifícios": "#D35C59",
+                            "Biblioteca": "#FCB454",
+                            "Centro Cultural": "#61DBA7",
+                            "Pavilhão":"#02124F",
+                            "Mercado":"#CA3A38",
+                            "Centro":"#D77C04",
+                            "Paços do Concelho":"#1A764E",
+                            "Outros":"#585C61"
+
+                        },
+                        "id" : "bubblechart_sazonalidade_por_edificio"
+
+                    },
+                    "size": "12"
+                }
+            ]
+        }
+    ]
+  }
