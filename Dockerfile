@@ -52,4 +52,4 @@ WORKDIR /src/
 
 EXPOSE $GRAPP_PORT
 
-CMD ["python", "test-grapp.py"]
+CMD ["python", "test-maia.py"]
