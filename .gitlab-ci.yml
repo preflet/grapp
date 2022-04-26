@@ -13,11 +13,11 @@ build_docker_image_maia:
     - export DOCKER_BUILDKIT=1
     - >
       docker build
-      --cache-from $CI_REGISTRY_IMAGE:latest
-      --tag $CI_REGISTRY_IMAGE:latest
+      --cache-from ${CI_REGISTRY_IMAGE}/maia:latest
+      --tag ${CI_REGISTRY_IMAGE}/maia:latest
       --build-arg BUILDKIT_INLINE_CACHE=1
       .
-    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker push ${CI_REGISTRY_IMAGE}/maia:latest
   after_script:
     - docker image prune -af
   only:

@@ -12,7 +12,7 @@ ENV PYTHONUNBUFFERED=1 \
     PYSETUP_PATH="/opt/pysetup" \
     VENV_PATH="/opt/pysetup/.venv" \
     GRAPP_PORT=8000 \
-    GRAPP_PY_FILE="test-grapp.py" 
+    GRAPP_PY_FILE="test-maia.py" 
 
 # prepend poetry and venv to path
 ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
