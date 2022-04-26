@@ -14,6 +14,7 @@ build_docker_image_maia:
     - >
       docker build
       --cache-from $CI_REGISTRY_IMAGE:latest
+      --tag $CI_REGISTRY_IMAGE:latest
       --build-arg BUILDKIT_INLINE_CACHE=1
       .
     - docker push $CI_REGISTRY_IMAGE:latest
