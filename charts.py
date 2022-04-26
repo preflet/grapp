@@ -11,9 +11,9 @@ from os import getenv
 
 myclient = pymongo.MongoClient(getenv('uri_name'))
 # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-mydb = myclient[getenv('db_name')]
+mydb = myclient["hello_world"]
 
-data = mydb["MAIA"]
+data = mydb["DATA"]
 from dateutil import parser
 
 from millify import millify
@@ -143,7 +143,7 @@ def single_line_chart(filter):
     return figure
 
 def donut_chart(filter):
-    str_query = "[{'$addFields':{'DATETIME':{'$dateFromString':{'dateString':'$Date'}}}},{'$group':{'_id': '$LOCAL', 'count':{'$sum': 1}}}]"
+    str_query = "[{'$addFields':{'DATETIME':{'$dateFromString':{'dateString':'$Date'}}}},{'$group':{'_id': '$LOCAL', 'count':{'$sum': 1}}},{'$project':{'Local':'$_id','Contargem':'$count'}}]"
     pipeline = json.loads(str_query.replace("'",'"'))
 
     if filter != "":
@@ -151,8 +151,8 @@ def donut_chart(filter):
 
     data = list(mydb.MAIA.aggregate(pipeline))
 
-    labels = [ d['_id'] for d in data ]
-    values = [ d['count'] for d in data ]
+    labels = [ d['Local'] for d in data ]
+    values = [ d['Contargem'] for d in data ]
 
     color_discrete_map = {
                         "Palmela":"#7AABE5",
@@ -160,20 +160,27 @@ def donut_chart(filter):
                         "Outros": "#FCB454",
                         "Setúbal": "#61DBA7"
                         }
-    figure = px.pie({'value': values,'label':labels}, 
-        values='value',
-        names='label',
-        hole=0.5,
-        color_discrete_map=color_discrete_map,
-        color='label',
-    )
-    figure.update_traces(
-        hoverinfo='label+percent',
-        textinfo='label+percent',
-        textfont_size=20,
-        # paper_bgcolor='rgb(244, 244, 244)',
-        # marker=dict(colors=colors)
-    )
+    # figure = px.pie({'value': values,'label':labels}, 
+    #     values='value',
+    #     names='label',
+    #     hole=0.5,
+    #     color_discrete_map=color_discrete_map,
+    #     color='label',
+    # )
+    figure = px.bar(  data,
+                        x="Local", 
+                        y="Contargem",
+                        # barmode="group"
+                        # color_discrete_map=color_discrete_map
+                    )
+    # figure.update_traces(
+    #     hoverinfo='label+percent',
+    #     textinfo='label+percent',
+    #     textfont_size=20,
+    #     # paper_bgcolor='rgb(244, 244, 244)',
+    #     # marker=dict(colors=colors)
+    # )
+    
     figure.update_layout(
         plot_bgcolor=plot_colors['background-color'],
         paper_bgcolor=plot_colors['background-color']
@@ -211,7 +218,7 @@ def treechart_tipo_de_edifício(filter):
     return figure
 
 def clustered_bar_chart_fatura(filter):
-    str_query = "[{'$addFields':{'DATETIME':{'$dateFromString':{'dateString':'$Date'}}}},{ '$group': { '_id': { 'month':'$ID' , 'year': { '$year': { '$dateFromString': { 'dateString': '$Date' } } } }, 'data': { '$sum': {'$toDouble':'$Fatura'} } } }, { '$project': { '_id':0, 'month':'$_id.month', 'year':{'$toString':'$_id.year'}, 'Fatura':'$data' } } ,{ '$project':{ 'Building': '$month', 'Year':'$year', 'Fatura':1 }} ]"
+    str_query = "[{'$addFields':{'DATETIME':{'$dateFromString':{'dateString':'$Date'}}}},{ '$group': { '_id': { 'month':'$TIPO_DE_EDIFICIO' , 'year': { '$year': { '$dateFromString': { 'dateString': '$Date' } } } }, 'data': { '$sum': {'$toDouble':'$Fatura'} } } }, { '$project': { '_id':0, 'month':'$_id.month', 'year':{'$toString':'$_id.year'}, 'Fatura':'$data' } } ,{ '$project':{ 'Tipo de edifício': '$month', 'Ano':'$year', 'Fatura':1 }} ]"
     pipeline = json.loads(str_query.replace("'",'"'))
 
     if filter != "":
@@ -225,11 +232,11 @@ def clustered_bar_chart_fatura(filter):
                             "Setúbal": "#61DBA7"
                         }
     if len(data) == 0:
-        data = [{"Building":0,"Year":0,"Fatura":0}]
+        data = [{"Tipo de edifício":0,"Ano":0,"Fatura":0}]
     figure = px.bar(    data,
-                        x="Building", 
+                        x="Tipo de edifício", 
                         y="Fatura",
-                        color="Year",
+                        color="Ano",
                         barmode="group"
                         # color_discrete_map=color_discrete_map
                     )
@@ -241,7 +248,7 @@ def clustered_bar_chart_fatura(filter):
     return figure
 
 def horizontal_barchart_sazonalidade_por_local(filter):
-    str_query = "[{'$addFields':{'DATETIME':{'$dateFromString':{'dateString':'$Date'}}}},{'$group':{'_id':{'month':{'$month':{'$dateFromString':{'dateString':'$Date'}}},'muni':'$LOCAL'},'data':{'$sum':1}}},{'$project':{'res':{'$switch':{'branches':[{'case':{'$in':['$_id.month',[12,1,2]]},'then':'Winter'},{'case':{'$in':['$_id.month',[3,4,5]]},'then':'Spring'},{'case':{'$in':['$_id.month',[6,7,8,9]]},'then':'Summer'},{'case':{'$in':['$_id.month',[10,11]]},'then':'Antumn'}]}},'data':1}},{'$group':{'_id':{'local':'$_id.muni','season':'$res'},'count':{'$sum':'$data'}}},{'$project':{'Local':'$_id.local','Temporadas':'$_id.season','Contar':'$count','_id':0}}]"
+    str_query = "[{'$addFields':{'DATETIME':{'$dateFromString':{'dateString':'$Date'}}}},{'$group':{'_id':{'month':{'$month':{'$dateFromString':{'dateString':'$Date'}}},'muni':'$LOCAL'},'data':{'$sum': {'$toDouble': '$Consumo' }}}},{'$project':{'res':{'$switch':{'branches':[{'case':{'$in':['$_id.month',[12,1,2]]},'then':'Winter'},{'case':{'$in':['$_id.month',[3,4,5]]},'then':'Spring'},{'case':{'$in':['$_id.month',[6,7,8]]},'then':'Summer'},{'case':{'$in':['$_id.month',[9,10,11]]},'then':'Antumn'}]}},'data':1}},{'$group':{'_id':{'local':'$_id.muni','season':'$res'},'count':{'$sum':'$data'}}},{'$project':{'Local':'$_id.local','Sazonalidade':'$_id.season','Soma':'$count','_id':0}}]"
     pipeline = json.loads(str_query.replace("'",'"'))
     
     if filter != "":
@@ -249,8 +256,8 @@ def horizontal_barchart_sazonalidade_por_local(filter):
 
     data = list(mydb.MAIA.aggregate(pipeline))
 
-    Contar = [ d['Contar'] for d in data ]
-    Temporadas = [ d['Temporadas'] for d in data ]
+    Contar = [ d['Soma'] for d in data ]
+    Temporadas = [ d['Sazonalidade'] for d in data ]
     local = [d['Local'] for d in data]
     color_discrete_map = {
                             "Palmela":"#7AABE5",
@@ -259,11 +266,11 @@ def horizontal_barchart_sazonalidade_por_local(filter):
                             "Setúbal": "#61DBA7"
                         }
 
-    figure = px.bar(  { "Contar": Contar,
-                        "Temporadas": Temporadas,
+    figure = px.bar(  { "Soma": Contar,
+                        "Sazonalidade": Temporadas,
                         "Local": local }, 
-                        x="Contar", 
-                        y="Temporadas",
+                        x="Soma", 
+                        y="Sazonalidade",
                         color="Local",
                         barmode="stack",
                         color_discrete_map=color_discrete_map
@@ -303,14 +310,14 @@ def scatterchart_sazonalidade_por_pavilhão(filter):
     return figure
 
 def bubblechart_sazonalidade_por_edificio(filter):
-    str_query = "[{'$addFields':{'DATETIME':{'$dateFromString':{'dateString':'$Date'}}}},{ '$group':{ '_id':{ 'month':{ '$month': {'$dateFromString':{'dateString':'$Date'}} }, 'tepo_de_edificio': '$TIPO_DE_EDIFICIO' }, 'data':{ '$sum':1 } } }, { '$project':{ 'res':{ '$switch': { 'branches': [ { 'case': { '$in': [ '$_id.month',[12,1,2] ] }, 'then': 'Winter' }, { 'case': { '$in': [ '$_id.month', [3,4,5] ] }, 'then': 'Spring' }, { 'case': { '$in': [ '$_id.month',[6,7,8,9] ] }, 'then': 'Summer' }, { 'case': { '$in': [ '$_id.month',[10,11] ] }, 'then': 'Antumn' } ] } }, 'data': 1 } }, { '$group':{ '_id': { 'tepo_de_edificio':'$_id.tepo_de_edificio', 'season': '$res' }, 'count':{ '$sum':'$data' } } }, { '$project': { 'TEPO DE EDIFICIO': '$_id.tepo_de_edificio', 'Temporadas':'$_id.season', 'Contar':'$count', '_id':0 } } ]"
+    str_query = "[{'$addFields':{'DATETIME':{'$dateFromString':{'dateString':'$Date'}}}},{ '$group':{ '_id':{ 'month':{ '$month': {'$dateFromString':{'dateString':'$Date'}} }, 'tepo_de_edificio': '$TIPO_DE_EDIFICIO' }, 'data':{'$sum': {'$toDouble': '$Consumo' }} } }, { '$project':{ 'res':{ '$switch': { 'branches': [ { 'case': { '$in': [ '$_id.month',[12,1,2] ] }, 'then': 'Winter' }, { 'case': { '$in': [ '$_id.month', [3,4,5] ] }, 'then': 'Spring' }, { 'case': { '$in': [ '$_id.month',[6,7,8] ] }, 'then': 'Summer' }, { 'case': { '$in': [ '$_id.month',[9,10,11] ] }, 'then': 'Antumn' } ] } }, 'data': 1 } }, { '$group':{ '_id': { 'tepo_de_edificio':'$_id.tepo_de_edificio', 'season': '$res' }, 'count':{ '$sum':'$data' } } }, { '$project': { 'TEPO DE EDIFICIO': '$_id.tepo_de_edificio', 'Sazonalidade':'$_id.season', 'Soma':'$count', '_id':0 } } ]"
     pipeline = json.loads(str_query.replace("'",'"'))
     if filter != "":
         pipeline.insert(1,filter)
     data = list(mydb.MAIA.aggregate(pipeline))
 
-    Contar = [ d['Contar'] for d in data ]
-    Temporadas = [ d['Temporadas'] for d in data ]
+    Contar = [ d['Soma'] for d in data ]
+    Temporadas = [ d['Sazonalidade'] for d in data ]
     tepo_de_edificio = [ d['TEPO DE EDIFICIO'] for d in data ]
 
     # print("tepo_de_edificio-----"+str(tepo_de_edificio))
@@ -325,12 +332,12 @@ def bubblechart_sazonalidade_por_edificio(filter):
                             "Outros":"#585C61"
                         }
     # print("DATA"+str(data))
-    figure = px.scatter( {"Temporadas": Temporadas,
-                        "Contar": Contar,
+    figure = px.scatter( {"Sazonalidade": Temporadas,
+                        "Soma": Contar,
                         "TEPO DE EDIFICIO": tepo_de_edificio}, 
-                        x="Contar", 
-                        y="Temporadas",
-                        size="Contar",
+                        x="Soma", 
+                        y="Sazonalidade",
+                        size="Soma",
                         color="TEPO DE EDIFICIO",
                         hover_name="TEPO DE EDIFICIO",
                         log_x=True,
@@ -481,7 +488,7 @@ def piechart_padrão_do_fim_de_semana(filter):
     return figure
 
 def barchart_tempordas(filter):
-    str_query = "[{'$addFields':{'DATETIME':{'$dateFromString':{'dateString':'$Date'}}}},{'$group':{'_id':{'month':{'$month':{'$dateFromString':{'dateString':'$Date'}}},'muni':'$LOCAL'},'data':{'$sum':1}}},{'$project':{'res':{'$switch':{'branches':[{'case':{'$in':['$_id.month',[12,1,2]]},'then':'Winter'},{'case':{'$in':['$_id.month',[3,4,5]]},'then':'Spring'},{'case':{'$in':['$_id.month',[6,7,8,9]]},'then':'Summer'},{'case':{'$in':['$_id.month',[10,11]]},'then':'Antumn'}]}},'data':1}},{'$group':{'_id':{'local':'$_id.muni','season':'$res'},'count':{'$sum':'$data'}}},{'$project':{'Local':'$_id.local','Temporadas':'$_id.season','Contar':'$count','_id':0}}]"
+    str_query = "[{'$addFields':{'DATETIME':{'$dateFromString':{'dateString':'$Date'}}}},{'$group':{'_id':{'month':{'$month':{'$dateFromString':{'dateString':'$Date'}}}},'data':{'$sum':{'$sum': {'$toDouble': '$Consumo' }}}}},{'$project':{'res':{'$switch':{'branches':[{'case':{'$in':['$_id.month',[12,1,2]]},'then':'Winter'},{'case':{'$in':['$_id.month',[3,4,5]]},'then':'Spring'},{'case':{'$in':['$_id.month',[6,7,8]]},'then':'Summer'},{'case':{'$in':['$_id.month',[9,10,11]]},'then':'Antumn'}]}},'data':1}},{'$group':{'_id':{'season':'$res'},'count':{'$sum':'$data'}}},{'$project':{'Sazonalidade':'$_id.season','Soma':'$count','_id':0}}]"
     pipeline = json.loads(str_query.replace("'",'"'))
     
     if filter != "":
@@ -491,8 +498,8 @@ def barchart_tempordas(filter):
     print("B-A-R-C-H-A-R-T")
     print(data)
     print("B-A-R-C-H-A-R-T")
-    Contar = [ d['Contar'] for d in data ]
-    Temporadas = [ d['Temporadas'] for d in data ]
+    Contar = [ d['Soma'] for d in data ]
+    Temporadas = [ d['Sazonalidade'] for d in data ]
 
     color_discrete_map ={
                             "Winter":"#02124F",
@@ -500,11 +507,11 @@ def barchart_tempordas(filter):
                             "Summer": "#D77C04",
                             "Antumn": "#1A764E"
                         }
-    figure = px.bar({ "Contar": Contar,
-                            "Temporadas": Temporadas,
+    figure = px.bar({ "Soma": Contar,
+                            "Sazonalidade": Temporadas,
                         }, 
-                        x="Contar", 
-                        y="Temporadas",
+                        x="Soma", 
+                        y="Sazonalidade",
                         color_discrete_map=color_discrete_map
                     )
     figure.update_layout(
@@ -514,7 +521,7 @@ def barchart_tempordas(filter):
     # print("DATA"+str(data))
     return figure
 def geomap(filter):
-    str_query = "[{'$addFields':{'DATETIME':{'$dateFromString':{'dateString':'$Date'}}}},{'$group':{'_id': {'LONGITUDE': '$LONGITUDE', 'LATITUDE': '$LATITUDE'},'data':{'$first': '$LOCAL'}}},{'$project': {'lon': '$_id.LONGITUDE','lat':'$_id.LATITUDE','name': '$data','_id':0}}]"
+    str_query = "[{'$addFields':{'DATETIME':{'$dateFromString':{'dateString':'$Date'}}}},{'$group':{'_id': {'LONGITUDE': '$LONGITUDE', 'LATITUDE': '$LATITUDE'},'data':{'$first': '$NOME'}}},{'$project': {'lon': '$_id.LONGITUDE','lat':'$_id.LATITUDE','name': '$data','_id':0}}]"
     pipeline = json.loads(str_query.replace("'",'"'))
 
     if filter != "":
