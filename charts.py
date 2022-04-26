@@ -11,7 +11,7 @@ from os import getenv
 
 myclient = pymongo.MongoClient(getenv('uri_name'))
 # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-mydb = myclient["hello_world"]
+mydb = myclient[getenv('db_name')]
 
 data = mydb["DATA"]
 from dateutil import parser
