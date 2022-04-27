@@ -101,8 +101,19 @@ def wrap_layout(graph_data):
                 ],className='card'),
             className='column is-6' ),
         ], className='columns' ,style={ "margin-top": "3rem"}),
-            html.Div(id='page-content')
+            html.Div(id='page-content'),
+            html.Div(
+                html.A(
+                    html.Img(src='./assets/preflet.png', style={"width": "110px"}),
+                    href="https://preflet.com",
+                    target="_blank"
+                ),
+                className='has-text-centered',
+                style={"padding": "20px"},
+                id="logo"
+            ),
         ])
+    
     return layout
 
 def create_header(title, description=''):
