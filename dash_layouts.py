@@ -3,12 +3,14 @@ import dash_html_components as html
 import plotly.graph_objs as go
 import plotly.express as px
 
-from dash_leaflet import Map, TileLayer, GeoJSON
+from dash_leaflet import Map, TileLayer, GeoJSON,WMSTileLayer
 from datetime import datetime
 from dash_leaflet.express import dicts_to_geojson
 from dash_extensions.javascript import assign
+from datetime import date
 
 _colors = ["#02124F","#CA3A38","#D77C04","#1A764E"]
+
 global_graph_config = {"displayModeBar":False,"displaylogo":False,"modeBarButtonsToRemove":["*"],"scrollZoom":False,"showAxisRangeEntryBoxes":False,"showAxisDragHandles":False,"style":{"background-color": "coral"}  }
 plot_colors = {
     'background-color': 'rgb(244, 244, 244)'
@@ -30,12 +32,74 @@ def wrap_layout(graph_data):
         layout = html.Div([
         html.Font(style={"face": "nunito-sans, sans-serif"}),
         dcc.Location(id='url', refresh=False),
-        html.A([
-                    html.Img(src='./assets/ena_logo_2.png'),
-                ], className='navbar-item', href="https://preflet.com", target="_blank"),
-        html.Div(id='page-content'),
-    ])
+        # html.A([
+        #             html.Img(src='./assets/ena_logo_2.png'),
+        #         ],id="logo", className='navbar-item', target="_blank",style={"position": "absolute",'padding-right': "30px",'padding-bottom':"20px"}),
+        html.H1("Barómetro de consumo de energia",className='title is-2 has-text-centered'),
+        html.Div([
+            html.Div(
+                html.Div([
+                    html.P("Data", className='has-text-black', style={'text-align':'center'}) ,
+                        html.Div([
+                            dcc.DatePickerRange(
+                                id='date-range',
+                                min_date_allowed=date(1995, 8, 5),
+                                max_date_allowed=date(2050, 9, 19),
+                                initial_visible_month=date(2020, 12, 1),
+                                style={"height": "auto","padding": "1.1em"},
+                                start_date_placeholder_text = "Data de Início",
+                                end_date_placeholder_text = "Data de Fim"
+                            )
+                        ],className='',style={"display": "flex","justify-content": "center"}),
+                    ],className='card'),
+            className='column is-4'),
 
+            html.Div(
+                html.Div([
+                    html.P("Municípios", className='has-text-black', style={'text-align':'center'}) ,
+                        html.Div([
+                            dcc.Dropdown(
+                                id = "muni-dropdown",
+                                options=[
+                                    {'label': 'Palmela', 'value': 'Palmela'},
+                                    {'label': 'Sesimbra', 'value': 'Sesimbra'},
+                                    {'label': 'Setúbal', 'value': 'Setúbal'}
+                                ],
+                                placeholder="Selecione",
+                                value=[],
+                                multi=True
+                            )
+                        ],className='card-content'),
+                ],className='card'),
+            className='column is-4' ),
+
+            html.Div(
+                html.Div([
+                    html.P("Tipo de edifícios", className='has-text-black', style={'text-align':'center'}) ,
+                        html.Div([
+                            dcc.Dropdown(
+                                id = 'tepo-dropdown',
+                                options=[
+                                    {'label': 'Escola Básica', 'value': 'Escola Básica'},
+                                    {'label': 'Edifícios', 'value': 'Edifícios'},
+                                    {'label': 'Biblioteca', 'value': 'Biblioteca'},
+                                    {'label': 'Centro Cultural', 'value': 'Centro Cultural'},
+                                    {'label': 'Pavilhão', 'value': 'Pavilhão'},
+                                    {'label': 'Mercado', 'value': 'Mercado'},
+                                    {'label': 'Centro', 'value': 'Centro'},
+                                    {'label': 'Paços do Concelho', 'value': 'Paços do Concelho'},
+                                    {'label': 'Outros', 'value': 'Outros'}                     
+                                ],
+                                placeholder="Selecione",
+                                value=[],
+                                multi=True
+                            )
+                    ],className='card-content'),
+                ],className='card'),
+            className='column is-4' ),
+        ], className='columns' ,style={ "margin-top": "3rem"}),
+            html.Div(id='page-content')
+        ])
     return layout
 
 def create_header(title, description=''):
@@ -47,290 +111,202 @@ def create_header(title, description=''):
     ))
 
 def create_lastupdated(title='-'):
-    return html.Div(html.Div(
+    return html.Div(
         [
-            html.P(title, className='sub-title is-4 has-text-right'),
-        ]
-    ))
+            html.P(title, className='sub-title has-text-right'),
+        ],className='column is-12'    )
 
-def create_indicator(title='-', value='-', info='', size=4):
+def create_indicator(title='-', size=4,id=''):
     return html.Div(
         html.Div([
             html.Div(
-                html.H1(value, className='title has-text-white', style={'white-space': 'nowrap','font-weight': 'bold','text-align': 'center'})
+                dcc.Loading(
+                    id="loading-1",
+                    type="default",
+                    children=html.H1(id=id, className='title has-text-white', style={'white-space': 'nowrap','font-weight': 'bold','text-align': 'center'})
+                )
             , className='card-content'),
             html.P(title, className='has-text-white', style={'text-align':'center'}) 
         ], className='card', style={'background-color': 'rgb(15, 70, 145)'})
     , className='column is-' + str(size))
 
-def create_piechart(labels=[], values=[], title='', size=6, colors=[],color_discrete_map={}, hole=0.0):
-    figure = px.pie({'value': values,'label':labels}, 
-        values='value',
-        names='label',
-        hole=hole,
-        color_discrete_map=color_discrete_map,
-        color='label',
-    )
-    figure.update_layout(
-        plot_bgcolor=plot_colors['background-color'],
-        paper_bgcolor=plot_colors['background-color']
-    )
-    figure.update_traces(
-        hoverinfo='label+percent',
-        textinfo='label+percent',
-        textfont_size=20,
-        # paper_bgcolor='rgb(244, 244, 244)',
-        # marker=dict(colors=colors)
-    )
+def create_piechart(id='',title='',size=''):
     return html.Div(
         html.Div([
             html.Div(
                 html.Div([
                     html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
-                    dcc.Graph(
-                        id='pie-chart-' + str(title).replace(' ', '-'),
-                        figure=figure,
-                        config=global_graph_config
-                    ),
+                    dcc.Loading(
+                        id="loading-1",
+                        type="default",
+                        children=dcc.Graph(
+                            id=id,
+                            config=global_graph_config
+                    )
+                ) 
                 ], className='content',),
             className='card-content'),
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_barchart(labels=[], values=[], title='', size=6, x_axis_label='', y_axis_label='', colors=[],color_discrete_map={}):
-    figure = px.bar({y_axis_label: values,x_axis_label:labels}, 
-       x=x_axis_label, y=y_axis_label,
-       color_discrete_map=color_discrete_map,
-       color=x_axis_label
-    )
-    figure.update_layout(
-        plot_bgcolor=plot_colors['background-color'],
-        paper_bgcolor=plot_colors['background-color']
-    )
-    # figure.update_traces(
-    #     marker=dict(color=colors)
-    # )
+def create_barchart(id='',title='',size=''):
     return html.Div(
         html.Div([
             html.Div(
                 html.Div([
                     html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
-                    dcc.Graph(
-                        id='bar-chart-' + str(title).replace(' ', '-'),
-                        figure=figure,
-                        config=global_graph_config
-                    ),
-                ], className='content',),
-            className='card-content'),
-        ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
-    , className='column is-' + str(size))
-
-def create_treechart(labels=[],values=[],parents=[],title='',size=6,color_discrete_map={}):
-    figure = go.Figure(go.Treemap(
-        labels = labels,
-        values = values,
-        parents = parents,
-        root_color="rgb(244, 244, 244)",
-        marker=dict(
-            colors=['#0066CC', '#D35C59',  '#FCB454', '#61DBA7','#02124F','#CA3A38','#D77C04','#1A764E','#D4EEFF'])
-    ))
-    figure.update_layout(
-        plot_bgcolor=plot_colors['background-color'],
-        paper_bgcolor=plot_colors['background-color']
-    )
-    # figure.update_traces(
-    #     marker=dict(colors=colors, line=dict(color='#000000', width=2))
-    # )
-    return html.Div(
-    html.Div([
-        html.Div(
-            html.Div([
-                html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
-                    dcc.Graph(
-                        id='tree-chart-' + str(title).replace(' ', '-'),
-                        figure=figure,
-                        config=global_graph_config
-                    ),
-                ], className='content',),
-            className='card-content'),
-        ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
-    , className='column is-' + str(size))
-
-def create_horizontal_barchart(x_axis=[],y_axis=[],color=[],title='',size='',x_axis_label='',y_axis_label='',color_label='',color_discrete_map={}):
-    figure = px.bar(  { y_axis_label: y_axis,
-                        x_axis_label: x_axis,
-                        color_label: color }, 
-                        x=x_axis_label, 
-                        y=y_axis_label,
-                        color=color_label,
-                        barmode="stack",
-                        color_discrete_map=color_discrete_map
+                    dcc.Loading(
+                        id="loading-1",
+                        type="default",
+                        children=dcc.Graph(
+                            id=id,
+                            config=global_graph_config
+                        )
                     )
-    figure.update_layout(
-        plot_bgcolor=plot_colors['background-color'],
-        paper_bgcolor=plot_colors['background-color']
-    )
-    return html.Div(
-    html.Div([
-        html.Div(
-            html.Div([
-                html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
-                    dcc.Graph(
-                        id='horizontal-bar-chart-' + str(title).replace(' ', '-'),
-                        figure=figure,
-                        config=global_graph_config
-                    ),
                 ], className='content',),
             className='card-content'),
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_bubblechart(x_axis=[],y_axis=[],bubbles=[],title='',size='',x_axis_label='',y_axis_label='',bubble_label='',color_discrete_map={}):
-    figure = px.scatter(  { y_axis_label: y_axis,
-                        x_axis_label: x_axis,
-                        bubble_label: bubbles }, 
-                        x=x_axis_label, 
-                        y=y_axis_label,
-                        size=x_axis_label,
-                        color=bubble_label,
-                        hover_name=bubble_label,
-                        log_x=True, 
-                        size_max=60,
-                        color_discrete_map=color_discrete_map
-                    )
-    figure.update_layout(
-        plot_bgcolor=plot_colors['background-color'],
-        paper_bgcolor=plot_colors['background-color']
-    )
+def create_treechart(id='',title='',size=''):
     return html.Div(
     html.Div([
         html.Div(
             html.Div([
                 html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
-                    dcc.Graph(
-                        id='bubble-chart-' + str(title).replace(' ', '-'),
-                        figure=figure,
-                        config=global_graph_config
-                    ),
+                dcc.Loading(
+                        id="loading-1",
+                        type="default",
+                        children=dcc.Graph(
+                            id=id,
+                            config=global_graph_config
+                    ))
                 ], className='content',),
             className='card-content'),
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_map(title='', data=[], size=6):
-    geojson = dicts_to_geojson([{**d, **dict(tooltip=d['name'])} for d in data])
-    dd_options = [dict(value=c['name'], label=c['name']) for c in data]
-    dd_defaults = [o['value'] for o in dd_options]
-    dd_defaults = list(set(dd_defaults))
+def create_horizontal_barchart(id='',title='',size=''):
+    return html.Div(
+    html.Div([
+        html.Div(
+            html.Div([
+                html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
+                dcc.Loading(
+                        id="loading-1",
+                        type="default",
+                        children=dcc.Graph(
+                            id=id,
+                            config=global_graph_config
+                    ))
+                ], className='content',),
+            className='card-content'),
+        ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
+    , className='column is-' + str(size))
+
+def create_bubblechart(id='',title='',size=''):
+    return html.Div(
+    html.Div([
+        html.Div(
+            html.Div([
+                html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
+                    dcc.Loading(
+                        id="loading-1",
+                        type="default",
+                        children=dcc.Graph(
+                            id=id,
+                            config=global_graph_config
+                    ))
+                ], className='content',),
+            className='card-content'),
+        ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
+    , className='column is-' + str(size))
+
+def create_map(id='',title='',size=''):
     point_to_layer = assign("""function(feature, latlng, context){
         return L.circleMarker(latlng);  // sender a simple circle marker.
-    }""")
+    }""")  
+    
     map = Map(
         children=[
             TileLayer(),
             GeoJSON(
-                data=geojson, hideout=dd_defaults, id='geojson', zoomToBounds=True, options=dict(pointToLayer=point_to_layer)
+                id='geojson', zoomToBounds=True, options=dict(pointToLayer=point_to_layer)
             )
         ], style={'width': '100%', 'height': '50vh', 'margin': 'auto', 'display': 'block'}, id='map'
     )
-
-                
+ 
     return html.Div(
         html.Div([
             html.Div(
                 html.Div([
                     html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
-                    map,
+                    dcc.Loading(
+                        id="loading-1",
+                        type="default",
+                        children=map
+                    )
                     ], className='content',),
                 className='card-content'),
             ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
         , className='column is-' + str(size)
     )
 
-def create_linechart(x_axis=[],y_axis=[],colors=[],title='',size='',x_axis_label='',y_axis_label='',color_label='',color_discrete_map={}):
-    figure = px.line(  { y_axis_label: y_axis,
-                        x_axis_label: x_axis,
-                        color_label: colors }, 
-                        x=x_axis_label, 
-                        y=y_axis_label,
-                        color=color_label,
-                        color_discrete_map=color_discrete_map
-                    )
-    figure.update_layout(
-        plot_bgcolor=plot_colors['background-color'],
-        paper_bgcolor=plot_colors['background-color']
-    )
+def create_linechart(title='',size='',id=''):
     return html.Div(
     html.Div([
         html.Div(
             html.Div([
                 html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
-                    dcc.Graph(
-                        id='line-chart-' + str(title).replace(' ', '-'),
-                        figure=figure,
-                        config=global_graph_config
-                    ),
+                dcc.Loading(
+                        id="loading-1",
+                        type="default",
+                        children=dcc.Graph(
+                            id=id,
+                            config=global_graph_config
+                    ))
                 ], className='content',),
             className='card-content'),
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_areachart(x_axis=[],y_axis=[],colors=[],title='',size='',x_axis_label='',y_axis_label='',line_group='',color_label='',color_discrete_map={}):
-    figure = px.area(  { y_axis_label: y_axis,
-                        x_axis_label: x_axis,
-                        color_label: colors }, 
-                        x=x_axis_label, 
-                        y=y_axis_label,
-                        color_discrete_map=color_discrete_map,
-                        color=line_group,
-                        line_group=line_group
-                    )
-    figure.update_layout(
-        plot_bgcolor=plot_colors['background-color'],
-        paper_bgcolor=plot_colors['background-color']
-    )
+def create_areachart(title='',size='',id=''):
     return html.Div(
     html.Div([
         html.Div(
             html.Div([
                 html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
-                    dcc.Graph(
-                        id='line-chart-' + str(title).replace(' ', '-'),
-                        figure=figure,
-                        config=global_graph_config
-                    ),
+                    dcc.Loading(
+                        id="loading-1",
+                        type="default",
+                        children=dcc.Graph(
+                            id=id,
+                            config=global_graph_config
+                    ))
                 ], className='content',),
             className='card-content'),
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_scatterchart(x_axis=[],y_axis=[],title='',size='',x_axis_label='',y_axis_label='',fill='',fillcolor='',line_color=''):
-    figure = go.Figure((go.Scatter(x=x_axis, 
-                                    y=y_axis,
-                                    fill=fill, 
-                                    fillcolor=fillcolor,
-                                    line_color=line_color
-                    )))
-    figure.update_layout(
-        plot_bgcolor=plot_colors['background-color'],
-        paper_bgcolor=plot_colors['background-color']
-    )
+def create_scatterchart(title='',size='',id=''):
     return html.Div(
     html.Div([
         html.Div(
             html.Div([
                 html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
-                    dcc.Graph(
-                        id='scatter-chart-' + str(title).replace(' ', '-'),
-                        figure=figure,
-                        config=global_graph_config
-                    ),
+                dcc.Loading(
+                        id="loading-1",
+                        type="default",
+                        children=dcc.Graph(
+                            id=id,
+                            config=global_graph_config
+                    ))
                 ], className='content',),
             className='card-content'),
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
 
-def create_single_line_chart(x_axis=[],y_axis=[],title='',size='',x_axis_label='',y_axis_label='',color_discrete_map={}):
+def create_single_line_chart(x_axis=[],y_axis=[],title='',size='',x_axis_label='',y_axis_label='',color_discrete_map={},id=''):
     figure = px.line({x_axis_label:x_axis,y_axis_label:y_axis }, x=x_axis_label, y=y_axis_label, title=title)
     figure.update_layout(
         plot_bgcolor=plot_colors['background-color'],
@@ -341,12 +317,15 @@ def create_single_line_chart(x_axis=[],y_axis=[],title='',size='',x_axis_label='
         html.Div(
             html.Div([
                 html.H4(title, className='subtitle is-4 has-text-centered is-bold'),
-                    dcc.Graph(
-                        id='horizontal-line-chart-' + str(title).replace(' ', '-'),
+                dcc.Loading(
+                        id="loading-1",
+                        type="default",
+                        children=dcc.Graph(
+                        id=id,
                         figure=figure,
                         config=global_graph_config
-                    ),
-                ], className='content',),
+                    ))
+                ], className='content'),
             className='card-content'),
         ], className='card', style={'background-color': 'rgb(244, 244, 244)'})  
     , className='column is-' + str(size))
