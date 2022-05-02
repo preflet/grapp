@@ -238,7 +238,7 @@ class Grapp:
                         )
                 
                 design.insert(4,dash_layouts.create_lastupdated(
-                    title="Última actualização em 1 de Junho de 2021"
+                    title="Última actualização em 2 de Maio de 2022"
                 ))
                 self.layout[graph['route']] = html.Div(
                     html.Div([

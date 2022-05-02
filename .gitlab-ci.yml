@@ -1,0 +1,24 @@
+image: docker:19.03.12
+
+stages:
+  - build
+
+build_docker_image_energy_preflet:
+  stage: build
+  services:
+    - docker:19.03.12-dind
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" "$CI_REGISTRY" --password-stdin
+  script:
+    - export DOCKER_BUILDKIT=1
+    - >
+      docker build
+      --cache-from ${CI_REGISTRY_IMAGE}/energy_preflet:latest
+      --tag ${CI_REGISTRY_IMAGE}/energy_preflet:latest
+      --build-arg BUILDKIT_INLINE_CACHE=1
+      .
+    - docker push ${CI_REGISTRY_IMAGE}/energy_preflet:latest
+  after_script:
+    - docker image prune -af
+  only:
+    - energy_preflet
