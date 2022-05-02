@@ -11,8 +11,7 @@ from os import getenv
 
 myclient = pymongo.MongoClient(getenv('uri_name'))
 # myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-mydb = myclient["grapp"]
-
+mydb = myclient[getenv('db_name')]
 data = mydb["DATA"]
 from dateutil import parser
 
@@ -309,14 +308,15 @@ def linechart_padrão_por_hora_por_tipo_de_edifício(filter):
     pipeline = json.loads(str_query.replace("'",'"'))
     if filter != "":
         pipeline.insert(0,filter)
-
+    print(pipeline)
     data = list(mydb.DATA.aggregate(pipeline))
-
+    # print(data)
     Hora = [ d['Hora'] for d in data ]
     Contar = [ d['Contagem'] for d in data ]
     TIPO_DE_EDIFÍCIO = [ d['TIPO_DE_EDIFÍCIO'] for d in data ]
 
-    color_discrete_map ={   "Escola Básica":"#0066CC",
+    color_discrete_map ={   
+                            "Escola Básica":"#0066CC",
                             "Edifícios": "#D35C59",
                             "Biblioteca": "#FCB454",
                             "Centro Cultural": "#61DBA7",
