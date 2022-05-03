@@ -237,9 +237,15 @@ class Grapp:
                             )
                         )
                 
+<<<<<<< HEAD
                 # design.insert(4,dash_layouts.create_lastupdated(
                 #     title="Última actualização em 1 de Junho de 2021"
                 # ))
+=======
+                design.insert(4,dash_layouts.create_lastupdated(
+                    title="Última actualização em 2 de Maio de 2022"
+                ))
+>>>>>>> fc11b6b980b818497efdcfe69176c6527fa9da3b
                 self.layout[graph['route']] = html.Div(
                     html.Div([
                         html.Div(design, className="columns is-multiline"),
