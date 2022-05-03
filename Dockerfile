@@ -12,7 +12,7 @@ ENV PYTHONUNBUFFERED=1 \
     PYSETUP_PATH="/opt/pysetup" \
     VENV_PATH="/opt/pysetup/.venv" \
     GRAPP_PORT=8000 \
-    GRAPP_PY_FILE="test-grapp.py" 
+    GRAPP_PY_FILE="energy.py" 
 
 # prepend poetry and venv to path
 ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
@@ -52,4 +52,4 @@ WORKDIR /src/
 
 EXPOSE $GRAPP_PORT
 
-CMD ["python", "test-grapp.py"]
+CMD ["python", "energy.py"]

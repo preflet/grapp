@@ -3,13 +3,13 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
-app: grapp
+app: energy
 image:
-  repository: github.com/preflet/grapp
+  repository: registry.gitlab.com/preflet/grapp/energy_preflet
   tag: latest
   pullPolicy: Always
   containerPort: 8000
-imagePullSecrets: docker-secrets
+imagePullSecrets: gitlab-secrets
 nameOverride: ""
 fullnameOverride: ""
 service:
