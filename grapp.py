@@ -279,7 +279,7 @@ class Grapp:
         @app.callback(
             Output('indi_1', 'children'),
             Output('indi_2', 'children'),
-            Output('indi_3', 'children'),
+            # Output('indi_3', 'children'),
             Output('indi_4', 'children'),
             Output('indi_5', 'children'),
             Output('single-line-chart','figure'),
@@ -301,7 +301,7 @@ class Grapp:
 
             indi_1 = str(charts.indicator_total(filter))
             indi_2 = str(charts.indicator_numero_de_edificios(filter))
-            indi_3 = str(charts.indicator_tipo_de_edifícios(filter))
+            # indi_3 = str(charts.indicator_tipo_de_edifícios(filter))
             indi_4 = str(charts.indicator_município(filter))
             indi_5 = str(charts.indicator_fatura(filter))
             single_line_chart = charts.single_line_chart(filter)
@@ -315,7 +315,7 @@ class Grapp:
             piechart_padrão_do_fim_de_semana = charts.piechart_padrão_do_fim_de_semana(filter)
             geomap = charts.geomap(filter)
 
-            return indi_1,indi_2,indi_3,indi_4,indi_5,\
+            return indi_1,indi_2,indi_4,indi_5,\
             single_line_chart,donut_chart,treechart_tipo_de_edifício,\
                 horizontal_barchart_sazonalidade_por_municipio,scatterchart_sazonalidade_por_pavilhão,\
                 bubblechart_sazonalidade_por_edificio,linechart_padrão_por_hora_por_tipo_de_edifício,\

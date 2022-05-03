@@ -45,19 +45,6 @@
                 },
                 {
                     "input": {
-                        "value": "[{'$group':{'_id': null, 'count':{'$addToSet': '$TIPO_DE_EDIFÍCIO'}}}]",
-                        "source": "DATA",
-                        "type": "aggregate"
-                    },
-                    "output": {
-                        "type": "indicator",
-                        "title": "Tipo de edifícios",
-                        "id": "indi_3"
-                    },
-                    "size": "3"
-                },
-                {
-                    "input": {
                         "value": "[{'$group':{'_id': null, 'count':{'$addToSet': '$MUNICÍPIO'}}}]",
                         "source": "DATA",
                         "type": "aggregate"
