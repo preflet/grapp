@@ -45,14 +45,14 @@
                 },
                 {
                     "input": {
-                        "value": "[{'$group':{'_id': null, 'count':{'$addToSet': '$MUNICÍPIO'}}}]",
+                        "value": "[{'$group':{'_id': null, 'count':{'$addToSet': '$TIPO_DE_EDIFÍCIO'}}}]",
                         "source": "DATA",
                         "type": "aggregate"
                     },
                     "output": {
                         "type": "indicator",
-                        "title": "Número de municípios",
-                        "id": "indi_4"
+                        "title": "Tipo de edifícios",
+                        "id": "indi_3"
                     },
                     "size": "3"
                 },
