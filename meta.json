@@ -1,292 +1,306 @@
 {
-  "name": "Energy Barometer",
-  "host": "0.0.0.0",
-  "port": 8000,
-  "graphs": [
-      {
-          "route": "/energy",
-          "name": "Borómetro de consumo de energia",
-          "description": "",
-          "db": {
-              "type": "mongo",
-              "credentials": {
-                "secure": true,
-                "uri": "uri_name",
-                "name": "grapp"
-              }
-          },
-          "queries": [
-              {
-                  "input": {
-                      "value": "[{'$group':{'_id': 'null', 'count': {'$sum': {'$toDouble': '$CONSUMO' }}}}]",
-                      "source": "DATA",
-                      "type": "aggregate"
-                  },
-                  "output": {
-                      "type": "indicator",
-                      "title": "Total (kW)",
-                      "id": "indi_1"
-                  },
-                  "size": "3"
-              },
-              {
-                  "input": {
-                      "value": "[{'$group':{'_id': null, 'count':{'$addToSet': '$ID'}}}]",
-                      "source": "DATA",
-                      "type": "aggregate"
-                      
-                  },
-                  "output": {
-                      "type": "indicator",
-                      "title": "Número de edifícios",
-                      "id": "indi_2"
-                  },
-                  "size": "3"
-              },
-              {
-                  "input": {
-                      "value": "[{'$group':{'_id': null, 'count':{'$addToSet': '$TIPO_DE_EDIFÍCIO'}}}]",
-                      "source": "DATA",
-                      "type": "aggregate"
-                  },
-                  "output": {
-                      "type": "indicator",
-                      "title": "Tipo de edifícios",
-                      "id": "indi_3"
-                  },
-                  "size": "3"
-              },
-              {
-                  "input": {
-                      "value": "[{'$group':{'_id': null, 'count':{'$addToSet': '$MUNICÍPIO'}}}]",
-                      "source": "DATA",
-                      "type": "aggregate"
-                  },
-                  "output": {
-                      "type": "indicator",
-                      "title": "Número de municípios",
-                      "id": "indi_4"
-                  },
-                  "size": "3"
-              },
-              {
-                  "input": {
-                      "value": "[{'$group':{'_id': {'LONGITUDE': '$LONGITUDE', 'LATITUDE': '$LATITUDE'},'data':{'$first': '$LOCAL'}}},{'$project': {'lon': '$_id.LONGITUDE','lat':'$_id.LATITUDE','name': '$data','_id':0}}]",
-                      "source": "DATA",
-                      "type": "aggregate"
-                  },
-                  "output": {
-                      "type": "map-scatter-plot",
-                      "labels": "_id",
-                      "values": "count",
-                      "title": "Mapa de consumo dos edifícios",
-                      "id":"geomap"
-                  },
-                  "size": "12"
-              },
-              {
-                  "input": {
-                      "value": "[ { '$group':{ '_id':{ 'month':{ '$toString':{ '$month': '$DATETIME' } }, 'year':{ '$toString':{ '$year': '$DATETIME' } }, 'day':{ '$toString':{ '$dayOfMonth': '$DATETIME' } } }, 'data':{ '$sum':'$CONSUMO' }, 'datetime':{ '$first': '$DATETIME' } } }, { '$project':{ 'Data':{ '$concat':['$_id.day','-','$_id.month','-','$_id.year'] }, 'Consumo': '$data', '_id':0, 'datetime':'$datetime'} }, { '$sort' : { 'datetime' : 1 } } ]",
-                      "source": "DATA",
-                      "type": "aggregate"
-                  },
-                  "output": {
-                      "type": "single-line-chart",
-                      "x_axis_label": "Data",
-                      "y_axis_label": "Consumo",
-                      "title": "Padrão de consumo",
-                      "id":"single-line-chart"
-                  },
-                  "size": "12"
-              },
-              {
-                  "input": {
-                      "value": "[{'$group':{'_id': '$MUNICÍPIO', 'count':{'$sum': 1}}}]",
-                      "source": "DATA",
-                      "type": "aggregate"
-                  },
-                  "output": {
-                      "type": "donut",
-                      "labels": "_id",
-                      "values": "count",
-                      "title": "Município",
-                      "color_discrete_map":{
-                          "Palmela":"#7AABE5",
-                          "Sesimbra": "#D35C59",
-                          "Outros": "#FCB454",
-                          "Setúbal": "#61DBA7"
-                      },
-                      "id":"donut-chart"
-                  },
-                  "size": "6"
-              },
-              {
-                  "input":{
-                      "value":"[{'$group':{'_id':'$TIPO_DE_EDIFÍCIO','count':{'$sum':1}}}]",
-                      "source":"DATA",
-                      "type":"aggregate"
-                  },
-                  "output":{
-                      "type":"treechart",
-                      "labels":"_id",
-                      "values":"count",
-                      "title":"Tipo de edifício",
-                      "color_discrete_map":{
-                          "Escola Básica":"blue",
-                          "Edifícios": "red",
-                          "Biblioteca": "orange",
-                          "Centro Cultural": "green",
-                          "Pavilhão":"Light Green",
-                          "Mercado":"Soft Cyan",
-                          "Centro":"Cream Orange",
-                          "Paços do Concelho":"Pale Orange",
-                          "Outros":"Pale Blue"
+    "name": "Energy Barometer",
+    "host": "0.0.0.0",
+    "port": 8000,
+    "graphs": [
+        {
+            "route": "/ena",
+            "name": "Borómetro de consumo de energia",
+            "description": "",
+            "db": {
+                "type": "mongo",
+                "credentials": {
+                  "secure": true,
+                  "uri": "uri_name",
+                  "name": "grapp"
+                }
+            },
+            "queries": [
+                {
+                    "input": {
+                        "value": "[{'$group':{'_id': 'null', 'count': {'$sum': {'$toDouble': '$CONSUMO' }}}}]",
+                        "source": "DATA",
+                        "type": "aggregate"
+                    },
+                    "output": {
+                        "type": "indicator",
+                        "title": "Total (kW)",
+                        "id": "indi_1"
+                    },
+                    "size": "3"
+                },
+                {
+                    "input": {
+                        "value": "[{'$group':{'_id': null, 'count':{'$addToSet': '$ID'}}}]",
+                        "source": "DATA",
+                        "type": "aggregate"
+                        
+                    },
+                    "output": {
+                        "type": "indicator",
+                        "title": "Número de edifícios",
+                        "id": "indi_2"
+                    },
+                    "size": "3"
+                },
+                {
+                    "input": {
+                        "value": "[{'$group':{'_id': null, 'count':{'$addToSet': '$TIPO_DE_EDIFÍCIO'}}}]",
+                        "source": "DATA",
+                        "type": "aggregate"
+                    },
+                    "output": {
+                        "type": "indicator",
+                        "title": "Tipo de edifícios",
+                        "id": "indi_3"
+                    },
+                    "size": "3"
+                },
+                {
+                    "input": {
+                        "value": "[{'$group':{'_id': null, 'count':{'$addToSet': '$MUNICÍPIO'}}}]",
+                        "source": "DATA",
+                        "type": "aggregate"
+                    },
+                    "output": {
+                        "type": "indicator",
+                        "title": "Número de municípios",
+                        "id": "indi_4"
+                    },
+                    "size": "3"
+                },
+                {
+                    "input": {
+                        "value": "[{'$group':{'_id': null, 'count':{'$sum': {'$toDouble': '$Fatura' }}}}]",
+                         "source": "MAIA",
+                        "type": "aggregate"
+                    },
+                    "output": {
+                        "type": "indicator",
+                        "title": "Fatura (€)",
+                        "id": "indi_5"
+                
+                    },
+                    "size": "3"
+                },
+                {
+                    "input": {
+                        "value": "[{'$group':{'_id': {'LONGITUDE': '$LONGITUDE', 'LATITUDE': '$LATITUDE'},'data':{'$first': '$LOCAL'}}},{'$project': {'lon': '$_id.LONGITUDE','lat':'$_id.LATITUDE','name': '$data','_id':0}}]",
+                        "source": "DATA",
+                        "type": "aggregate"
+                    },
+                    "output": {
+                        "type": "map-scatter-plot",
+                        "labels": "_id",
+                        "values": "count",
+                        "title": "Mapa de consumo dos edifícios",
+                        "id":"geomap"
+                    },
+                    "size": "12"
+                },
+                {
+                    "input": {
+                        "value": "[ { '$group':{ '_id':{ 'month':{ '$toString':{ '$month': '$DATETIME' } }, 'year':{ '$toString':{ '$year': '$DATETIME' } }, 'day':{ '$toString':{ '$dayOfMonth': '$DATETIME' } } }, 'data':{ '$sum':'$CONSUMO' }, 'datetime':{ '$first': '$DATETIME' } } }, { '$project':{ 'Data':{ '$concat':['$_id.day','-','$_id.month','-','$_id.year'] }, 'Consumo': '$data', '_id':0, 'datetime':'$datetime'} }, { '$sort' : { 'datetime' : 1 } } ]",
+                        "source": "DATA",
+                        "type": "aggregate"
+                    },
+                    "output": {
+                        "type": "single-line-chart",
+                        "x_axis_label": "Data",
+                        "y_axis_label": "Consumo",
+                        "title": "Padrão de consumo",
+                        "id":"single-line-chart"
+                    },
+                    "size": "12"
+                },
+                {
+                    "input": {
+                        "value": "[{'$group':{'_id': '$MUNICÍPIO', 'count':{'$sum': 1}}}]",
+                        "source": "DATA",
+                        "type": "aggregate"
+                    },
+                    "output": {
+                        "type": "donut",
+                        "labels": "_id",
+                        "values": "count",
+                        "title": "Município",
+                        "color_discrete_map":{
+                            "Palmela":"#7AABE5",
+                            "Sesimbra": "#D35C59",
+                            "Outros": "#FCB454",
+                            "Setúbal": "#61DBA7"
+                        },
+                        "id":"donut-chart"
+                    },
+                    "size": "6"
+                },
+                {
+                    "input":{
+                        "value":"[{'$group':{'_id':'$TIPO_DE_EDIFÍCIO','count':{'$sum':1}}}]",
+                        "source":"DATA",
+                        "type":"aggregate"
+                    },
+                    "output":{
+                        "type":"treechart",
+                        "labels":"_id",
+                        "values":"count",
+                        "title":"Tipo de edifício",
+                        "color_discrete_map":{
+                            "Escola Básica":"blue",
+                            "Edifícios": "red",
+                            "Biblioteca": "orange",
+                            "Centro Cultural": "green",
+                            "Pavilhão":"Light Green",
+                            "Mercado":"Soft Cyan",
+                            "Centro":"Cream Orange",
+                            "Paços do Concelho":"Pale Orange",
+                            "Outros":"Pale Blue"
 
-                      },
-                      "id":"treechart_tipo_de_edifício"
-                  },
-                  "size": "6"
-              },
-              {
-                  "input":{
-                      "value":"[{'$group':{'_id':{'month':{'$month':'$DATETIME'},'muni':'$MUNICÍPIO'},'data':{'$sum':1}}},{'$project':{'res':{'$switch':{'branches':[{'case':{'$in':['$_id.month',[12,1,2]]},'then':'Inverno'},{'case':{'$in':['$_id.month',[3,4,5]]},'then':'Primavera'},{'case':{'$in':['$_id.month',[6,7,8,9]]},'then':'Verão'},{'case':{'$in':['$_id.month',[10,11]]},'then':'Outono'}]}},'data':1}},{'$group':{'_id':{'municipio':'$_id.muni','season':'$res'},'count':{'$sum':'$data'}}},{'$project':{'municipio':'$_id.municipio','Temporadas':'$_id.season','Contagem':'$count','_id':0}}]",
-                      "source":"DATA",
-                      "type":"aggregate"
-                  },
-                  "output":{
-                      "type":"horizontal-barchart",
-                      "x_axis_label":"Contagem",
-                      "y_axis_label":"Temporadas",
-                      "color":"municipio",
-                      "title":"Sazonalidade por município",
-                      "color_discrete_map":{
-                          "Palmela":"#7AABE5",
-                          "Sesimbra": "#D35C59",
-                          "Outros": "#FCB454",
-                          "Setúbal": "#61DBA7"
-                      },
-                      "id":"horizontal_barchart_sazonalidade_por_municipio"
-                      
-                  },
-                  "size": "6"
-              },                {
-                  "input":{
-                      "value":"[ { '$match':{ 'TIPO_DE_EDIFÍCIO':'Pavilhão' } }, { '$group':{ '_id':{ 'month':{ '$month': '$DATETIME'} }, 'data':{ '$sum':'$CONSUMO' } } }, { '$project': { 'res': { '$switch': { 'branches': [ { 'case':{ '$in': [ '$_id.month',[12,1,2] ] }, 'then': 'Inverno' }, { 'case': { '$in': [ '$_id.month', [3,4,5] ] }, 'then': 'Primavera' }, { 'case': { '$in': [ '$_id.month',[6,7,8,9] ] }, 'then': 'Verão' }, { 'case': { '$in': [ '$_id.month',[10,11] ] }, 'then': 'Outono' } ] } }, 'data': 1 } }, { '$group':{ '_id': { 'season': '$res' }, 'count':{ '$sum':'$data' } } }, { '$project':{ 'Temporadas':'$_id.season', 'Contar':'$count', '_id':0 } } ]",
-                      "source":"DATA",
-                      "type":"aggregate"
-                  },
-                  "output":{
-                      "type":"scatterchart",
-                      "x_axis_label":"Temporadas",
-                      "y_axis_label":"Contar",
-                      "color_label":"Temporadas",
-                      "title":"Sazonalidade por Pavilhão",
-                      "fill" : "tonexty",
-                      "fillcolor" : "#7AABE5",
-                      "line_color" : "#0066CC" ,
-                      "id":"scatterchart_sazonalidade_por_pavilhão"
-                  },
-                  "size": "6"
-              },                {
-                  "input":{
-                      "value":"[ { '$group':{ '_id':{ 'month':{ '$month': '$DATETIME' }, 'tepo_de_edificio': '$TIPO_DE_EDIFÍCIO' }, 'data':{ '$sum':1 } } }, { '$project':{ 'res':{ '$switch': { 'branches': [ { 'case': { '$in': [ '$_id.month',[12,1,2] ] }, 'then': 'Inverno' }, { 'case': { '$in': [ '$_id.month', [3,4,5] ] }, 'then': 'Primavera' }, { 'case': { '$in': [ '$_id.month',[6,7,8,9] ] }, 'then': 'Verão' }, { 'case': { '$in': [ '$_id.month',[10,11] ] }, 'then': 'Outono' } ] } }, 'data': 1 } }, { '$group':{ '_id': { 'tepo_de_edificio':'$_id.tepo_de_edificio', 'season': '$res' }, 'count':{ '$sum':'$data' } } }, { '$project': { 'Tepo de edifício': '$_id.tepo_de_edificio', 'Temporadas':'$_id.season', 'Contar':'$count', '_id':0 } } ]",
-                      "source":"DATA",
-                      "type":"aggregate"
-                  },
-                  "output":{
-                      "type":"bubblechart",
-                      "x_axis_label":"Contar",
-                      "y_axis_label":"Temporadas",
-                      "bubbles":"Tepo de edifício",
-                      "hover_name":"Tepo de edifício",
-                      "title":"Sazonalidade por edifício",
-                      "color_discrete_map":{
-                          "Escola Básica":"#0066CC",
-                          "Edifícios": "#D35C59",
-                          "Biblioteca": "#FCB454",
-                          "Centro Cultural": "#61DBA7",
-                          "Pavilhão":"#02124F",
-                          "Mercado":"#CA3A38",
-                          "Centro":"#D77C04",
-                          "Paços do Concelho":"#1A764E",
-                          "Outros":"#585C61"
+                        },
+                        "id":"treechart_tipo_de_edifício"
+                    },
+                    "size": "6"
+                },
+                {
+                    "input":{
+                        "value":"[{'$group':{'_id':{'month':{'$month':'$DATETIME'},'muni':'$MUNICÍPIO'},'data':{'$sum':1}}},{'$project':{'res':{'$switch':{'branches':[{'case':{'$in':['$_id.month',[12,1,2]]},'then':'Inverno'},{'case':{'$in':['$_id.month',[3,4,5]]},'then':'Primavera'},{'case':{'$in':['$_id.month',[6,7,8,9]]},'then':'Verão'},{'case':{'$in':['$_id.month',[10,11]]},'then':'Outono'}]}},'data':1}},{'$group':{'_id':{'municipio':'$_id.muni','season':'$res'},'count':{'$sum':'$data'}}},{'$project':{'municipio':'$_id.municipio','Temporadas':'$_id.season','Contagem':'$count','_id':0}}]",
+                        "source":"DATA",
+                        "type":"aggregate"
+                    },
+                    "output":{
+                        "type":"horizontal-barchart",
+                        "x_axis_label":"Contagem",
+                        "y_axis_label":"Temporadas",
+                        "color":"municipio",
+                        "title":"Sazonalidade por município",
+                        "color_discrete_map":{
+                            "Palmela":"#7AABE5",
+                            "Sesimbra": "#D35C59",
+                            "Outros": "#FCB454",
+                            "Setúbal": "#61DBA7"
+                        },
+                        "id":"horizontal_barchart_sazonalidade_por_municipio"
+                        
+                    },
+                    "size": "6"
+                },                {
+                    "input":{
+                        "value":"[ { '$match':{ 'TIPO_DE_EDIFÍCIO':'Pavilhão' } }, { '$group':{ '_id':{ 'month':{ '$month': '$DATETIME'} }, 'data':{ '$sum':'$CONSUMO' } } }, { '$project': { 'res': { '$switch': { 'branches': [ { 'case':{ '$in': [ '$_id.month',[12,1,2] ] }, 'then': 'Inverno' }, { 'case': { '$in': [ '$_id.month', [3,4,5] ] }, 'then': 'Primavera' }, { 'case': { '$in': [ '$_id.month',[6,7,8,9] ] }, 'then': 'Verão' }, { 'case': { '$in': [ '$_id.month',[10,11] ] }, 'then': 'Outono' } ] } }, 'data': 1 } }, { '$group':{ '_id': { 'season': '$res' }, 'count':{ '$sum':'$data' } } }, { '$project':{ 'Temporadas':'$_id.season', 'Contar':'$count', '_id':0 } } ]",
+                        "source":"DATA",
+                        "type":"aggregate"
+                    },
+                    "output":{
+                        "type":"scatterchart",
+                        "x_axis_label":"Temporadas",
+                        "y_axis_label":"Contar",
+                        "color_label":"Temporadas",
+                        "title":"Sazonalidade por Pavilhão",
+                        "fill" : "tonexty",
+                        "fillcolor" : "#7AABE5",
+                        "line_color" : "#0066CC" ,
+                        "id":"scatterchart_sazonalidade_por_pavilhão"
+                    },
+                    "size": "6"
+                },                {
+                    "input":{
+                        "value":"[ { '$group':{ '_id':{ 'month':{ '$month': '$DATETIME' }, 'tepo_de_edificio': '$TIPO_DE_EDIFÍCIO' }, 'data':{ '$sum':1 } } }, { '$project':{ 'res':{ '$switch': { 'branches': [ { 'case': { '$in': [ '$_id.month',[12,1,2] ] }, 'then': 'Inverno' }, { 'case': { '$in': [ '$_id.month', [3,4,5] ] }, 'then': 'Primavera' }, { 'case': { '$in': [ '$_id.month',[6,7,8,9] ] }, 'then': 'Verão' }, { 'case': { '$in': [ '$_id.month',[10,11] ] }, 'then': 'Outono' } ] } }, 'data': 1 } }, { '$group':{ '_id': { 'tepo_de_edificio':'$_id.tepo_de_edificio', 'season': '$res' }, 'count':{ '$sum':'$data' } } }, { '$project': { 'Tepo de edifício': '$_id.tepo_de_edificio', 'Temporadas':'$_id.season', 'Contar':'$count', '_id':0 } } ]",
+                        "source":"DATA",
+                        "type":"aggregate"
+                    },
+                    "output":{
+                        "type":"bubblechart",
+                        "x_axis_label":"Contar",
+                        "y_axis_label":"Temporadas",
+                        "bubbles":"Tepo de edifício",
+                        "hover_name":"Tepo de edifício",
+                        "title":"Sazonalidade por edifício",
+                        "color_discrete_map":{
+                            "Escola Básica":"#0066CC",
+                            "Edifícios": "#D35C59",
+                            "Biblioteca": "#FCB454",
+                            "Centro Cultural": "#61DBA7",
+                            "Pavilhão":"#02124F",
+                            "Mercado":"#CA3A38",
+                            "Centro":"#D77C04",
+                            "Paços do Concelho":"#1A764E",
+                            "Outros":"#585C61"
 
-                      },
-                      "id" : "bubblechart_sazonalidade_por_edificio"
-                  },
-                  "size": "12"
-              },
-              {
-                  "input":{
-                      "value":"[ { '$group':{ '_id':{ 'hour':{ '$hour': '$DATETIME' }, 'TIPO_DE_EDIFÍCIO': '$TIPO_DE_EDIFÍCIO' }, 'count':{ '$sum': '$CONSUMO' } } },{ '$project': { 'Hora': '$_id.hour', 'Tipo de edifício':'$_id.TIPO_DE_EDIFÍCIO', 'Contagem': '$count', '_id':0 } }, { '$sort' : { 'Hora' : 1 } } ]",
-                      "source":"DATA",
-                      "type":"aggregate"
-                  },
-                  "output":{
-                      "type":"linechart",
-                      "x_axis_label":"Hora",
-                      "y_axis_label":"Contagem",
-                      "color_label":"Tipo de edifício",
-                      "title":"Padrão por hora por tipo de edifício",
-                      "color_discrete_map":{
-                          "Escola Básica":"#0066CC",
-                          "Edifícios": "#D35C59",
-                          "Biblioteca": "#FCB454",
-                          "Centro Cultural": "#61DBA7",
-                          "Pavilhão":"#02124F",
-                          "Mercado":"#CA3A38",
-                          "Centro":"#D77C04",
-                          "Paços do Concelho":"#1A764E",
-                          "Outros":"#585C61"
+                        },
+                        "id" : "bubblechart_sazonalidade_por_edificio"
+                    },
+                    "size": "12"
+                },
+                {
+                    "input":{
+                        "value":"[ { '$group':{ '_id':{ 'hour':{ '$hour': '$DATETIME' }, 'TIPO_DE_EDIFÍCIO': '$TIPO_DE_EDIFÍCIO' }, 'count':{ '$sum': '$CONSUMO' } } },{ '$project': { 'Hora': '$_id.hour', 'Tipo de edifício':'$_id.TIPO_DE_EDIFÍCIO', 'Contagem': '$count', '_id':0 } }, { '$sort' : { 'Hora' : 1 } } ]",
+                        "source":"DATA",
+                        "type":"aggregate"
+                    },
+                    "output":{
+                        "type":"linechart",
+                        "x_axis_label":"Hora",
+                        "y_axis_label":"Contagem",
+                        "color_label":"Tipo de edifício",
+                        "title":"Padrão por hora por tipo de edifício",
+                        "color_discrete_map":{
+                            "Escola Básica":"#0066CC",
+                            "Edifícios": "#D35C59",
+                            "Biblioteca": "#FCB454",
+                            "Centro Cultural": "#61DBA7",
+                            "Pavilhão":"#02124F",
+                            "Mercado":"#CA3A38",
+                            "Centro":"#D77C04",
+                            "Paços do Concelho":"#1A764E",
+                            "Outros":"#585C61"
 
-                      },
-                      "id":"linechart_padrão_por_hora_por_tipo_de_edifício"
-                  },
-                  "size": "12"
-              },
-              {
-                  "input":{
-                      "value":"[ { '$group':{ '_id':{ 'dayOfWeek': { '$dayOfWeek': '$DATETIME' }, 'MUNICÍPIO':'$MUNICÍPIO' }, 'count':{ '$sum': '$CONSUMO' } } }, { '$project': { 'Dia': '$_id.dayOfWeek', 'MUNICIPIO':'$_id.MUNICÍPIO', 'Contar': '$count', '_id':0 } }, { '$project':{ 'Dias da semana':{ '$switch': { 'branches': [ { 'case': { '$eq': [ '$Dia', 1 ] }, 'then': 'Domingo' }, { 'case': { '$eq': [ '$Dia', 2 ] }, 'then': 'Segunda' }, { 'case': { '$eq': [ '$Dia', 3 ] }, 'then': 'Terça' }, { 'case': { '$eq': [ '$Dia', 4 ] }, 'then': 'Quarta' }, { 'case': { '$eq': [ '$Dia', 5 ] }, 'then': 'Quinta' }, { 'case': { '$eq': [ '$Dia', 6 ] }, 'then': 'Sexta' }, { 'case': { '$eq': [ '$Dia', 7 ] }, 'then': 'Sábado' } ] } }, 'Dia':'$Dia', 'MUNICIPIO':'$MUNICIPIO', 'Contagem': '$Contar' } }, { '$sort' : { 'Dia' : 1 } } ]",
-                      "source":"DATA",
-                      "type":"aggregate"
-                  },
-                  "output":{
-                      "type":"areachart",
-                      "x_axis_label":"Dias da semana",
-                      "y_axis_label":"Contagem",
-                      "color_label":"MUNICIPIO",
-                      "title":"Comparação semanal",
-                      "line_group":"MUNICIPIO",
-                      "color_discrete_map":{
-                          "Palmela":"#7AABE5",
-                          "Sesimbra": "#D35C59",
-                          "Outros": "#FCB454",
-                          "Setúbal": "#61DBA7"
-                      },
-                      "id" : "areachart_comparação_semanal"
-                  },
-                  "size": "6"
-              },
-              {
-                  "input": {
-                      "value": "[{'$project':{'dayOfWeek':{'$dayOfWeek':'$DATETIME'},'consumo':'$CONSUMO'}},{'$project':{'res':{'$switch':{'branches':[{'case':{'$in':['$dayOfWeek',[1,7]]},'then':'fim de semana'},{'case':{'$in':['$dayOfWeek',[2,3,4,5,6]]},'then':'Dias da semana'}]}},'consumo':'$consumo'}},{'$group':{'_id':'$res','count':{'$sum':'$consumo'}}}]",
-                      "source": "DATA",
-                      "type": "aggregate"
-                  },
-                  "output": {
-                      "type": "piechart",
-                      "labels": "_id",
-                      "values": "count",
-                      "title": "Padrão do fim de semana",
-                      "color_discrete_map":{
-                          "Dias da semana":"#7AABE5",
-                          "fim de semana": "#D4EEFF"
-                      },
-                      "id":"piechart_padrão_do_fim_de_semana"
-                  },
-                  "size": "6"
-              }
-          ]
-      }
-  ]
-}
+                        },
+                        "id":"linechart_padrão_por_hora_por_tipo_de_edifício"
+                    },
+                    "size": "12"
+                },
+                {
+                    "input":{
+                        "value":"[ { '$group':{ '_id':{ 'dayOfWeek': { '$dayOfWeek': '$DATETIME' }, 'MUNICÍPIO':'$MUNICÍPIO' }, 'count':{ '$sum': '$CONSUMO' } } }, { '$project': { 'Dia': '$_id.dayOfWeek', 'MUNICIPIO':'$_id.MUNICÍPIO', 'Contar': '$count', '_id':0 } }, { '$project':{ 'Dias da semana':{ '$switch': { 'branches': [ { 'case': { '$eq': [ '$Dia', 1 ] }, 'then': 'Domingo' }, { 'case': { '$eq': [ '$Dia', 2 ] }, 'then': 'Segunda' }, { 'case': { '$eq': [ '$Dia', 3 ] }, 'then': 'Terça' }, { 'case': { '$eq': [ '$Dia', 4 ] }, 'then': 'Quarta' }, { 'case': { '$eq': [ '$Dia', 5 ] }, 'then': 'Quinta' }, { 'case': { '$eq': [ '$Dia', 6 ] }, 'then': 'Sexta' }, { 'case': { '$eq': [ '$Dia', 7 ] }, 'then': 'Sábado' } ] } }, 'Dia':'$Dia', 'MUNICIPIO':'$MUNICIPIO', 'Contagem': '$Contar' } }, { '$sort' : { 'Dia' : 1 } } ]",
+                        "source":"DATA",
+                        "type":"aggregate"
+                    },
+                    "output":{
+                        "type":"areachart",
+                        "x_axis_label":"Dias da semana",
+                        "y_axis_label":"Contagem",
+                        "color_label":"MUNICIPIO",
+                        "title":"Comparação semanal",
+                        "line_group":"MUNICIPIO",
+                        "color_discrete_map":{
+                            "Palmela":"#7AABE5",
+                            "Sesimbra": "#D35C59",
+                            "Outros": "#FCB454",
+                            "Setúbal": "#61DBA7"
+                        },
+                        "id" : "areachart_comparação_semanal"
+                    },
+                    "size": "6"
+                },
+                {
+                    "input": {
+                        "value": "[{'$project':{'dayOfWeek':{'$dayOfWeek':'$DATETIME'},'consumo':'$CONSUMO'}},{'$project':{'res':{'$switch':{'branches':[{'case':{'$in':['$dayOfWeek',[1,7]]},'then':'fim de semana'},{'case':{'$in':['$dayOfWeek',[2,3,4,5,6]]},'then':'Dias da semana'}]}},'consumo':'$consumo'}},{'$group':{'_id':'$res','count':{'$sum':'$consumo'}}}]",
+                        "source": "DATA",
+                        "type": "aggregate"
+                    },
+                    "output": {
+                        "type": "piechart",
+                        "labels": "_id",
+                        "values": "count",
+                        "title": "Padrão do fim de semana",
+                        "color_discrete_map":{
+                            "Dias da semana":"#7AABE5",
+                            "fim de semana": "#D4EEFF"
+                        },
+                        "id":"piechart_padrão_do_fim_de_semana"
+                    },
+                    "size": "6"
+                }
+            ]
+        }
+    ]
+  }
