@@ -11,15 +11,6 @@ window.dashExtensions = Object.assign({}, window.dashExtensions, {
         },
         function3: function(feature, latlng, context) {
             return L.circleMarker(latlng); // sender a simple circle marker.
-        },
-        function4: function(feature, latlng, context) {
-            return L.circleMarker(latlng); // sender a simple circle marker.
-        },
-        function5: function(feature, latlng, context) {
-            return L.circleMarker(latlng); // sender a simple circle marker.
-        },
-        function6: function(feature, latlng, context) {
-            return L.circleMarker(latlng); // sender a simple circle marker.
         }
     }
 });

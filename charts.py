@@ -62,9 +62,26 @@ def indicator_total(filter):
     if len(data) and 'count' in data[0]:
         c = data[0]['count']
         c = millify(c, precision=2)
+        c = c.replace(".",",")
 
     return c
 
+def indicator_fatura(filter):
+    str_query = "[{'$group':{'_id': null, 'count':{'$sum': {'$toDouble': '$FATURA' }}}}]"
+    pipeline = json.loads(str_query.replace("'",'"'))
+
+    if filter != "":
+        pipeline.insert(0,filter)
+
+    data = list(mydb.DATA.aggregate(pipeline))
+    c = 0
+    if len(data) and 'count' in data[0]:
+        c = data[0]['count']
+        c = millify(c, precision=2)
+        c = c.replace(".",",")
+
+    return c
+    
 def indicator_numero_de_edificios(filter):
     str_query = "[{'$group':{'_id': null, 'count':{'$addToSet': '$ID'}}}]"
     pipeline = json.loads(str_query.replace("'",'"'))
@@ -440,14 +457,13 @@ def piechart_padrão_do_fim_de_semana(filter):
 
 
 def geomap(filter):
-    str_query = "[{'$group':{'_id': {'LONGITUDE': '$LONGITUDE', 'LATITUDE': '$LATITUDE'},'data':{'$first': '$LOCAL'}}},{'$project': {'lon': '$_id.LONGITUDE','lat':'$_id.LATITUDE','name': '$data','_id':0}}]"
+    str_query = "[{'$limit':100},{'$group':{'_id': {'LONGITUDE': '$LONGITUDE', 'LATITUDE': '$LATITUDE'},'data':{'$first': '$LOCAL'}}},{'$project': {'lon': '$_id.LONGITUDE','lat':'$_id.LATITUDE','name': '$data','_id':0}}]"
     pipeline = json.loads(str_query.replace("'",'"'))
 
     if filter != "":
         pipeline.insert(0,filter)
 
     data = list(mydb.DATA.aggregate(pipeline))
-
     geojson = dicts_to_geojson([{**d, **dict(tooltip=d['name'])} for d in data])
     dd_options = [dict(value=c['name'], label=c['name']) for c in data]
     dd_defaults = [o['value'] for o in dd_options]

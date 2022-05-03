@@ -61,9 +61,17 @@ def wrap_layout(graph_data):
                             dcc.Dropdown(
                                 id = "muni-dropdown",
                                 options=[
-                                    {'label': 'Palmela', 'value': 'Palmela'},
-                                    {'label': 'Sesimbra', 'value': 'Sesimbra'},
-                                    {'label': 'Setúbal', 'value': 'Setúbal'}
+                                    {'label': 'Calheta', 'value': 'Calheta'},
+                                    {'label': 'Câmara de Lobos', 'value': 'Câmara de Lobos'},
+                                    {'label': 'Funchal', 'value': 'Funchal'},
+                                    {'label': 'Machico', 'value': 'Machico'},
+                                    {'label': 'Ponta do Sol', 'value': 'Ponta do Sol'},
+                                    {'label': 'Porto Moniz', 'value': 'Porto Moniz'},
+                                    {'label': 'Porto Santo', 'value': 'Porto Santo'},
+                                    {'label': 'Ribeira Brava', 'value': 'Ribeira Brava'},
+                                    {'label': 'Santa Cruz', 'value': 'Santa Cruz'},
+                                    {'label': 'Santana', 'value': 'Santana'},
+                                    {'label': 'São Vicente', 'value': 'São Vicente'}
                                 ],
                                 placeholder="Selecione",
                                 value=[],
